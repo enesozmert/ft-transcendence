@@ -8,7 +8,7 @@ import { User } from 'src/entities/concrete/user.entity';
 import { UserForRegisterDto } from 'src/entities/dto/userForRegisterDto';
 import { IDataResult } from 'src/core/utilities/result/abstract/iDataResult';
 import { UserService } from '../user/user.service';
-import { HashingHelper } from 'src/core/utilities/hashing/hashingHelper';
+import { HashingHelper } from 'src/core/utilities/security/hashing/hashingHelper';
 
 @Injectable()
 export class AuthService {
@@ -71,4 +71,10 @@ export class AuthService {
 
     return new SuccessDataResult<User>(userToCheck, 'Messages.SuccessfulLogin');
   }
+
+  // public async createAccessToken(
+  //   user: User,
+  // ): Promise<IDataResult<AccessToken>> {
+
+  // }
 }

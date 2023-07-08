@@ -53,4 +53,8 @@ export class UserService {
     await this.userDal.delete(id);
     return new SuccessResult('User deleted');
   }
+
+  // public async getClaims(user: User): Promise<OperationClaim[]> {
+  //   return new SuccessDataResult<OperationClaim[]>();
+  // }
 }
