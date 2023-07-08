@@ -6,9 +6,16 @@ import { SuccessDataResult } from 'src/core/utilities/result/concrete/dataResult
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
 import { UserDal } from 'src/dataAccess/concrete/userDal';
 import { User } from 'src/entities/concrete/user.entity';
+import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity';
+import { OperationClaimDal } from 'src/dataAccess/concrete/operationClaimDal';
+import { DataResult } from 'src/core/utilities/result/concrete/dataResult/DataResult';
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private userDal: UserDal) {}
+  constructor(
+    @InjectRepository(User) private userDal: UserDal,
+    @InjectRepository(OperationClaim)
+    private operationClaimDal: OperationClaimDal,
+  ) {}
 
   public async getAll(): Promise<IDataResult<User[]>> {
     return new SuccessDataResult<User[]>(
@@ -54,7 +61,22 @@ export class UserService {
     return new SuccessResult('User deleted');
   }
 
-  // public async getClaims(user: User): Promise<OperationClaim[]> {
-  //   return new SuccessDataResult<OperationClaim[]>();
-  // }
+  public async getClaims(user: User): Promise<IDataResult<OperationClaim[]>> {
+    const result = await this.operationClaimDal
+      .createQueryBuilder('operationClaim')
+      .innerJoin(
+        'operationClaim.userOperationClaims',
+        'userOperationClaim',
+        'userOperationClaim.userId = :userId',
+        { userId: user.id },
+      )
+      .select([
+        'operationClaim.id',
+        'operationClaim.name',
+        'operationClaim.explanation',
+        'operationClaim.description',
+      ])
+      .getMany();
+    return new SuccessDataResult<OperationClaim[]>(result, 'Abc');
+  }
 }

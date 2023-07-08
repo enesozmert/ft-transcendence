@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserOperationClaim } from 'src/core/entities/concrete/userOperationClaim';
+import { UserOperationClaim } from 'src/core/entities/concrete/userOperationClaim.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

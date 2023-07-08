@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenOptions } from './tokenOptions';
 import { User } from 'src/entities/concrete/user.entity';
-import { OperationClaim } from 'src/core/entities/concrete/operationClaim';
+import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity';
 import { AccessToken } from './accessToken';
 import { SecurityKeyService } from '../encryption/securityKeyHelper';
 import { SigningCredentialsService } from '../encryption/signingCredentialsHelper';

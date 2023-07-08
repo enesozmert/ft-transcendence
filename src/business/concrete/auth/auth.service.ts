@@ -1,20 +1,21 @@
 import { UserForLoginDto } from './../../../entities/dto/userForLoginDto';
 import { Injectable } from '@nestjs/common';
-import { IResult } from 'src/core/utilities/result/abstract/IResult';
 import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/errorDataResult';
 import { SuccessDataResult } from 'src/core/utilities/result/concrete/dataResult/successDataResult';
-import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
 import { User } from 'src/entities/concrete/user.entity';
 import { UserForRegisterDto } from 'src/entities/dto/userForRegisterDto';
 import { IDataResult } from 'src/core/utilities/result/abstract/iDataResult';
 import { UserService } from '../user/user.service';
 import { HashingHelper } from 'src/core/utilities/security/hashing/hashingHelper';
+import { AccessToken } from 'src/core/utilities/security/jwt/accessToken';
+import { JwtHelper } from 'src/core/utilities/security/jwt/jwtHelper';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private readonly hashingHelper: HashingHelper,
+    private readonly tokenHelper: JwtHelper,
   ) {}
 
   public async register(
@@ -72,9 +73,14 @@ export class AuthService {
     return new SuccessDataResult<User>(userToCheck, 'Messages.SuccessfulLogin');
   }
 
-  // public async createAccessToken(
-  //   user: User,
-  // ): Promise<IDataResult<AccessToken>> {
-
-  // }
+  public async createAccessToken(
+    user: User,
+  ): Promise<IDataResult<AccessToken>> {
+    const claims = this.userService.getClaims(user);
+    const accessToken = this.tokenHelper.createToken(user, (await claims).data);
+    return new SuccessDataResult<AccessToken>(
+      accessToken,
+      'Messages.AccessTokenCreated',
+    );
+  }
 }

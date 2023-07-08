@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { getEnvPath } from './core/helper/env.helper';
 import { TypeOrmConfigService } from './dataAccess/typeorm.service';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth/auth.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
 @Module({
@@ -13,6 +14,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     ConfigModule.forRoot({ envFilePath, isGlobal: true }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
