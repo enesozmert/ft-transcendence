@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenOptions } from './tokenOptions';
@@ -15,58 +15,48 @@ export class JwtHelper {
 
   constructor(
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    @Inject(ConfigService) private readonly configService: ConfigService,
     private readonly securityKeyService: SecurityKeyService,
     private readonly signingCredentialsService: SigningCredentialsService,
   ) {
-    this.tokenOptions = this.configService.get<TokenOptions>('TokenOptions');
+    this.tokenOptions = new TokenOptions(this.configService);
   }
 
   createToken(user: User, operationClaims: OperationClaim[]): AccessToken {
+    console.log("this.securityKey :  " + this.tokenOptions.securityKey);
     this.accessTokenExpiration = new Date();
     this.accessTokenExpiration.setMinutes(
-      this.accessTokenExpiration.getMinutes() +
-        this.tokenOptions.accessTokenExpiration,
+      Number(this.accessTokenExpiration.getMinutes()) + Number(this.tokenOptions.accessTokenExpiration)
     );
-
-    const signingCredentials =
-      this.signingCredentialsService.createSigningCredentials(
-        this.tokenOptions.securityKey,
-      );
-    const jwt = this.createJwtSecurityToken(
-      user,
-      signingCredentials,
-      operationClaims,
+    const signingCredentials = this.signingCredentialsService.createSigningCredentials(
+      this.tokenOptions.securityKey,
     );
-    const token = this.jwtService.sign(jwt);
-
+    const jwtPayload = this.createJwtPayload(user, operationClaims);
+    console.log("jwtPayload " + JSON.stringify(jwtPayload));
+    
+    const token = this.jwtService.sign(jwtPayload, {
+      secret: signingCredentials.securityKey,
+      expiresIn: this.tokenOptions.accessTokenExpiration,
+      algorithm: signingCredentials.algorithm,
+    });
+  
     return {
       token,
       expiration: this.accessTokenExpiration,
     };
   }
-
-  private createJwtSecurityToken(
-    user: User,
-    signingCredentials: any,
-    operationClaims: OperationClaim[],
-  ): any {
-    const jwtPayload = {
+  
+  private createJwtPayload(user: User, operationClaims: OperationClaim[]): any {
+    return {
       issuer: this.tokenOptions.issuer,
       audience: this.tokenOptions.audience,
-      expiresIn: this.accessTokenExpiration,
-      notBefore: new Date(),
+      expiresIn: this.accessTokenExpiration.getTime(),
+      notBefore: new Date().getTime(),
       subject: user.id.toString(),
       claims: this.setClaims(user, operationClaims),
     };
-
-    const jwt: any = this.jwtService.sign(jwtPayload, signingCredentials);
-    jwt.signingKey = signingCredentials.key;
-    jwt.rawSignature = signingCredentials.signature;
-
-    return jwt;
   }
-
+  
   private setClaims(user: User, operationClaims: OperationClaim[]): any[] {
     const claims = [
       { name: 'nameIdentifier', value: user.id.toString() },
@@ -77,7 +67,7 @@ export class JwtHelper {
         value: claim.name,
       })),
     ];
-
+  
     return claims;
-  }
+  }  
 }

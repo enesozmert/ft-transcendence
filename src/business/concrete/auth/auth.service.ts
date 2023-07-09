@@ -9,6 +9,9 @@ import { UserService } from '../user/user.service';
 import { HashingHelper } from 'src/core/utilities/security/hashing/hashingHelper';
 import { AccessToken } from 'src/core/utilities/security/jwt/accessToken';
 import { JwtHelper } from 'src/core/utilities/security/jwt/jwtHelper';
+import { IResult } from 'src/core/utilities/result/abstract/IResult';
+import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
+import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
 
 @Injectable()
 export class AuthService {
@@ -82,5 +85,19 @@ export class AuthService {
       accessToken,
       'Messages.AccessTokenCreated',
     );
+  }
+
+  public async userExists(userForRegisterDto: UserForRegisterDto): Promise<IResult> {
+    const userByMail = await this.userService.getByMail(userForRegisterDto.email);
+    if (userByMail.data != null) {
+      return new ErrorResult("Messages.UserAlreadyExists");
+    }
+  
+    const userByNickname = await this.userService.getByNickName(userForRegisterDto.nickName);
+    if (userByNickname.data != null) {
+      return new ErrorResult("Messages.UserAlreadyExists");
+    }
+
+    return new SuccessResult();
   }
 }

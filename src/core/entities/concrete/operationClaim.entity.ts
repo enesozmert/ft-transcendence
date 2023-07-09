@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { UserOperationClaim } from './userOperationClaim.entity';
 
 @Entity({ name: 'operationclaims' })
 export class OperationClaim {
@@ -10,4 +11,6 @@ export class OperationClaim {
   explanation: number;
   @Column()
   description: string;
+  @ManyToOne(() => UserOperationClaim, (userOperationClaim) => userOperationClaim.operationClaimId)
+  userOperationClaims: UserOperationClaim[];
 }

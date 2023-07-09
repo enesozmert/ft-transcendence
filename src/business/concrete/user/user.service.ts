@@ -8,7 +8,7 @@ import { UserDal } from 'src/dataAccess/concrete/userDal';
 import { User } from 'src/entities/concrete/user.entity';
 import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity';
 import { OperationClaimDal } from 'src/dataAccess/concrete/operationClaimDal';
-import { DataResult } from 'src/core/utilities/result/concrete/dataResult/DataResult';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -36,6 +36,10 @@ export class UserService {
       await this.userDal.findOne({ where: { email: email } }),
       'Message for user getbymail',
     );
+  }
+  public async getByNickName(nickname: string): Promise<IDataResult<User>> {
+    const user = await this.userDal.findOne({ where: { nickname: nickname } });
+    return { success: true, data: user };
   }
 
   public async add(user: User): Promise<IDataResult<User>> {
