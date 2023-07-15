@@ -37,17 +37,16 @@ export class AuthController {
       nickName: "eozmert1",
     }
     let userExists = this.authService.userExists(userForRegisterDto)
-    if ((await userExists).success == false)
+    if (!(await userExists).success)
     {
-      response.status(HttpStatus.BAD_REQUEST);
+      return(response.status(HttpStatus.BAD_REQUEST).send(userExists));
     }
     let registerResult = this.authService.register(userForRegisterDto, userForRegisterDto.password)
     let result = this.authService.createAccessToken((await registerResult).data)
     if ((await result).success)
     {
-      response.status(HttpStatus.OK );
-      return result;
+      return(response.status(HttpStatus.OK).send(result));
     }
-    response.status(HttpStatus.BAD_REQUEST);
+    return(response.status(HttpStatus.BAD_REQUEST).send(result));
   }
 }
