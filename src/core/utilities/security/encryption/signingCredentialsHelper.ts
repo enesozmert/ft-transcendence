@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { JwtSignOptions } from '@nestjs/jwt';
 
 @Injectable()
 export class SigningCredentialsService {
-  createSigningCredentials(secretKey: string): any {
-    return { secret: secretKey, signOptions: { algorithm: 'HS256' } };
+  createSigningCredentials(secretKey: string): JwtSignOptions {
+    return { secret: secretKey,  algorithm: 'HS256' };
   }
 }

@@ -23,7 +23,6 @@ export class JwtHelper {
   }
 
   createToken(user: User, operationClaims: OperationClaim[]): AccessToken {
-    console.log("this.securityKey :  " + this.tokenOptions.securityKey);
     this.accessTokenExpiration = new Date();
     this.accessTokenExpiration.setMinutes(
       Number(this.accessTokenExpiration.getMinutes()) + Number(this.tokenOptions.accessTokenExpiration)
@@ -31,15 +30,8 @@ export class JwtHelper {
     const signingCredentials = this.signingCredentialsService.createSigningCredentials(
       this.tokenOptions.securityKey,
     );
-    const jwtPayload = this.createJwtPayload(user, operationClaims);
-    console.log("jwtPayload " + JSON.stringify(jwtPayload));
-    
-    const token = this.jwtService.sign(jwtPayload, {
-      secret: signingCredentials.securityKey,
-      expiresIn: this.tokenOptions.accessTokenExpiration,
-      algorithm: signingCredentials.algorithm,
-    });
-  
+    const jwtPayload = this.createJwtPayload(user, operationClaims);    
+    const token = this.jwtService.sign(jwtPayload,signingCredentials);
     return {
       token,
       expiration: this.accessTokenExpiration,
