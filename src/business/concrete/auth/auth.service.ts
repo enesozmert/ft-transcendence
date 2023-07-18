@@ -87,15 +87,21 @@ export class AuthService {
     );
   }
 
-  public async userExists(userForRegisterDto: UserForRegisterDto): Promise<IResult> {
-    const userByMail = await this.userService.getByMail(userForRegisterDto.email);
-    if (userByMail.data != null) {
-      return new ErrorResult("Messages.UserAlreadyExists");
+  public async userExists(
+    userForRegisterDto: UserForRegisterDto,
+  ): Promise<IResult> {
+    const userByMail = await this.userService.getByMail(
+      userForRegisterDto.email,
+    );
+    if (userByMail.data !== null) {
+      return new ErrorResult('Messages.UserAlreadyExists');
     }
-  
-    const userByNickname = await this.userService.getByNickName(userForRegisterDto.nickName);
-    if (userByNickname.data != null) {
-      return new ErrorResult("Messages.UserAlreadyExists");
+
+    const userByNickname = await this.userService.getByNickName(
+      userForRegisterDto.nickName,
+    );
+    if (userByNickname.data !== null) {
+      return new ErrorResult('Messages.UserAlreadyExists');
     }
 
     return new SuccessResult();

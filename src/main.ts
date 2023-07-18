@@ -6,7 +6,14 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app: NestExpressApplication = await NestFactory.create(AppModule);
+  const app: NestExpressApplication = await NestFactory.create(AppModule, {
+    cors: true,
+  });
+  app.enableCors({
+    origin: true,
+    methods: 'GET,POST',
+    credentials: true,
+});
   const config: ConfigService = app.get(ConfigService);
   const port: number = config.get<number>('PORT');
 

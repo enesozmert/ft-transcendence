@@ -8,6 +8,7 @@ import { UserDal } from 'src/dataAccess/concrete/userDal';
 import { User } from 'src/entities/concrete/user.entity';
 import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity';
 import { OperationClaimDal } from 'src/dataAccess/concrete/operationClaimDal';
+import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
 
 @Injectable()
 export class UserService {
@@ -52,9 +53,10 @@ export class UserService {
     updatedUser: Partial<User>,
   ): Promise<IResult> {
     const user = await this.userDal.findOne({ where: { id: id } });
-    // if (!user) {
-    //   throw new Error('User not found');
-    // }
+    if (!user) {
+      // throw new Error('User not found');
+      return new ErrorResult('User not found');
+    }
     const mergedUser = this.userDal.merge(user, updatedUser);
     await this.userDal.save(mergedUser);
     return new SuccessResult('User updated');
