@@ -12,6 +12,7 @@ import { JwtHelper } from 'src/core/utilities/security/jwt/jwtHelper';
 import { IResult } from 'src/core/utilities/result/abstract/IResult';
 import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
+import  {Messages}  from 'src/business/const/messages';
 
 @Injectable()
 export class AuthService {
@@ -60,7 +61,7 @@ export class AuthService {
       await this.userService.getByMail(userForLoginDto.email)
     ).data;
     if (!userToCheck) {
-      return new ErrorDataResult<User>(null, 'Messages.UserNotFound');
+      return new ErrorDataResult<User>(null, Messages.UserNotFound);
     }
 
     const isPasswordValid = await this.hashingHelper.verifyPasswordHash(
@@ -70,10 +71,10 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      return new ErrorDataResult<User>(null, 'Messages.PasswordError');
+      return new ErrorDataResult<User>(null, Messages.PasswordError);
     }
 
-    return new SuccessDataResult<User>(userToCheck, 'Messages.SuccessfulLogin');
+    return new SuccessDataResult<User>(userToCheck, Messages.SuccessfulLogin);
   }
 
   public async createAccessToken(
