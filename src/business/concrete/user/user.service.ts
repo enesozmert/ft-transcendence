@@ -9,6 +9,7 @@ import { User } from 'src/entities/concrete/user.entity';
 import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity';
 import { OperationClaimDal } from 'src/dataAccess/concrete/operationClaimDal';
 import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
+import { Messages } from 'src/business/const/messages';
 
 @Injectable()
 export class UserService {
@@ -21,21 +22,21 @@ export class UserService {
   public async getAll(): Promise<IDataResult<User[]>> {
     return new SuccessDataResult<User[]>(
       await this.userDal.find(),
-      'Message for user getall',
+      Messages.UserGetAll,
     );
   }
 
   public async getById(id: number): Promise<IDataResult<User>> {
     return await new SuccessDataResult<User>(
       await this.userDal.findOne({ where: { id: id } }),
-      'Message for user betbyid',
+      Messages.UserGetById,
     );
   }
 
   public async getByMail(email: string): Promise<IDataResult<User>> {
     return await new SuccessDataResult<User>(
       await this.userDal.findOne({ where: { email: email } }),
-      'Message for user getbymail',
+      Messages.UserGetByMail,
     );
   }
   public async getByNickName(nickname: string): Promise<IDataResult<User>> {
@@ -45,7 +46,7 @@ export class UserService {
 
   public async add(user: User): Promise<IDataResult<User>> {
     const addedUser = await this.userDal.save(user);
-    return new SuccessDataResult<User>(addedUser, 'User added');
+    return new SuccessDataResult<User>(addedUser, Messages.UserAdded);
   }
 
   public async update(
@@ -55,16 +56,16 @@ export class UserService {
     const user = await this.userDal.findOne({ where: { id: id } });
     if (!user) {
       // throw new Error('User not found');
-      return new ErrorResult('User not found');
+      return new ErrorResult(Messages.UserNotFound);
     }
     const mergedUser = this.userDal.merge(user, updatedUser);
     await this.userDal.save(mergedUser);
-    return new SuccessResult('User updated');
+    return new SuccessResult(Messages.UserUpdate);
   }
 
   public async delete(id: number): Promise<IResult> {
     await this.userDal.delete(id);
-    return new SuccessResult('User deleted');
+    return new SuccessResult(Messages.UserDeleted);
   }
 
   public async getClaims(user: User): Promise<IDataResult<OperationClaim[]>> {
@@ -83,6 +84,6 @@ export class UserService {
         'operationClaim.description',
       ])
       .getMany();
-    return new SuccessDataResult<OperationClaim[]>(result, 'Abc');
+    return new SuccessDataResult<OperationClaim[]>(result, Messages.UserGetClaims);
   }
 }

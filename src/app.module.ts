@@ -1,3 +1,4 @@
+import { Auth42Module } from './modules/auth42/auth42.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
@@ -16,6 +17,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     UserModule,
     AuthModule,
+    Auth42Module
   ],
   controllers: [AppController],
   providers: [AppService],

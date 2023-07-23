@@ -1,6 +1,7 @@
 export class Messages {
   // Auth
-  public static readonly UserRegistered: string = 'User registered';
+  public static readonly UserRegistered: string = 'User Registered';
+  public static readonly UserLoggedIn: string = 'User Logged In';
   public static readonly UserNotFound: string = 'User Not Found';
   public static readonly PasswordError: string = 'Password Error';
   public static readonly SuccessfulLogin: string = 'Success Login';
@@ -18,12 +19,16 @@ export class Messages {
 
   // UserReg
   /**User Alanı**/
-  public static UserAdded = 'User added';
   //public static UserAddedInvalid: string = "User added invalided";
-  public static UserDeleted = 'User deleted';
   //public static UserDeletedInvalid: string = "User deleted invalided";
-  public static UserUpdate = 'User updated';
   //public static UserDeletedInvalid: string = "User updated invalided";
+  public static readonly UserAdded: string = 'User Added';
+  public static readonly UserDeleted: string = 'User Deleted';
+  public static readonly UserUpdate: string = 'User Updated';
+  public static readonly UserGetAll: string = 'User Get All';
+  public static readonly UserGetById: string = 'User Get By Id';
+  public static readonly UserGetByMail: string = 'User Get By Mail';
+  public static readonly UserGetClaims: string = 'User Get Claims';
 
   // Link
   public static readonly WebsiteNotAccessedError: string =

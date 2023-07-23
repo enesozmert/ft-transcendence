@@ -49,9 +49,8 @@ export class AuthService {
     const successResult = await this.userService.add(user);
 
     if (!successResult.success)
-      return new ErrorDataResult<User>(user, 'successResult.Message');
-
-    return new SuccessDataResult<User>(user, 'Messages.UserRegistered');
+      return new ErrorDataResult<User>(user, successResult.message);
+    return new SuccessDataResult<User>(user, Messages.UserRegistered);
   }
 
   public async login(
@@ -84,7 +83,7 @@ export class AuthService {
     const accessToken = this.tokenHelper.createToken(user, (await claims).data);
     return new SuccessDataResult<AccessToken>(
       accessToken,
-      'Messages.AccessTokenCreated',
+      Messages.AccessTokenCreated,
     );
   }
 
@@ -95,14 +94,14 @@ export class AuthService {
       userForRegisterDto.email,
     );
     if (userByMail.data !== null) {
-      return new ErrorResult('Messages.UserAlreadyExists');
+      return new ErrorResult(Messages.UserAlreadyExists);
     }
 
     const userByNickname = await this.userService.getByNickName(
       userForRegisterDto.nickName,
     );
     if (userByNickname.data !== null) {
-      return new ErrorResult('Messages.UserAlreadyExists');
+      return new ErrorResult(Messages.UserAlreadyExists);
     }
 
     return new SuccessResult();
