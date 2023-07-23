@@ -12,7 +12,7 @@ import { JwtHelper } from 'src/core/utilities/security/jwt/jwtHelper';
 import { IResult } from 'src/core/utilities/result/abstract/IResult';
 import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
-import  {Messages}  from 'src/business/const/messages';
+import { Messages } from 'src/business/const/messages';
 
 @Injectable()
 export class AuthService {
