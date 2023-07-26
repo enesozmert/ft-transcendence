@@ -47,7 +47,7 @@ export class Auth42Service {
     const dataInfo = await responseInfo.json();
     let userForLoginDto: UserForLoginDto = {
         email: dataInfo.email,
-        password: "sifredeneme"
+        password: String(dataInfo.url + "sifredeneme")
     };
     const userToCheck = (
         await this.userService.getByMail(userForLoginDto.email)
@@ -90,7 +90,7 @@ export class Auth42Service {
       },
     });
     const dataInfo = await responseInfo.json();
-    let password:string = "sifredeneme";
+    let password:string = String(dataInfo.url + "sifredeneme");
     const userForRegisterDto: UserForRegisterDto = {
       email: dataInfo.email,
       password: password,
