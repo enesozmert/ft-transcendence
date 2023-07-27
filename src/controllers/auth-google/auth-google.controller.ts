@@ -4,7 +4,7 @@ import { AuthGoogleService } from 'src/business/concrete/auth-google/auth-google
 import { AuthService } from 'src/business/concrete/auth/auth.service';
 import { Request, Response } from 'express';
 
-@Controller('auth-google')
+@Controller('api/auth-google')
 export class AuthGoogleController {
     constructor(
         private readonly auth42Service: AuthGoogleService,

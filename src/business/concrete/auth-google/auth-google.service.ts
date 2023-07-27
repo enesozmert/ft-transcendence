@@ -25,13 +25,27 @@ export class AuthGoogleService {
         const UID = this.configService.get<string>('GOOGLE_AUTH_UID_LOGIN');
         const SECRET = this.configService.get<string>('GOOGLE_AUTH_SECRET_LOGIN');
 
-        this.oauthClient = new google.auth.OAuth2(UID, SECRET);
+        const API_URL = 'https://accounts.google.com';
+        const form = new FormData();
+        form.append('grant_type', 'authorization_code');
+        form.append('client_id', UID as string);
+        form.append('client_secret', SECRET as string);
+        form.append('code', code);
+        form.append('redirect_uri', 'http://localhost:3000/api/auth-google/register');
 
-        const { tokens } = await this.oauthClient.getToken(code);
-        this.oauthClient.setCredentials(tokens);
-        const oauth2 = google.oauth2({ version: 'v2', auth: this.oauthClient });
-        const userInfo = await oauth2.userinfo.get();
-        console.log("userInfo " + JSON.stringify(userInfo));
+        const responseToken = await fetch(API_URL + '/o/oauth2/v2/auth', {
+            method: 'POST',
+            body: form,
+        });
+        const dataToken = await responseToken.json();
+        console.log(dataToken.access_token);
+        // this.oauthClient = new google.auth.OAuth2(UID, SECRET);
+
+        // const { tokens } = await this.oauthClient.getToken(code);
+        // this.oauthClient.setCredentials(tokens);
+        // const oauth2 = google.oauth2({ version: 'v2', auth: this.oauthClient });
+        // const userInfo = await oauth2.userinfo.get();
+        // console.log("userInfo " + JSON.stringify(userInfo));
         return new SuccessDataResult<User>(null, Messages.SuccessfulLogin);
     }
 
