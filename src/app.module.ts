@@ -1,3 +1,4 @@
+import { AuthGoogleModule } from './modules/auth-google/auth-google.module';
 import { Auth42Module } from './modules/auth42/auth42.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -17,7 +18,8 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     UserModule,
     AuthModule,
-    Auth42Module
+    Auth42Module,
+    AuthGoogleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
