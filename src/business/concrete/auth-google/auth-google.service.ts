@@ -9,6 +9,8 @@ import { User } from 'src/entities/concrete/user.entity';
 import { SuccessDataResult } from 'src/core/utilities/result/concrete/dataResult/successDataResult';
 import { Messages } from 'src/business/const/messages';
 import { Auth, google } from 'googleapis';
+import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/errorDataResult';
+import { UserForRegisterDto } from 'src/entities/dto/userForRegisterDto';
 
 @Injectable()
 export class AuthGoogleService {
@@ -22,31 +24,46 @@ export class AuthGoogleService {
     }
 
     public async login(code: string): Promise<IDataResult<User>> {
-        const UID = this.configService.get<string>('GOOGLE_AUTH_UID_LOGIN');
-        const SECRET = this.configService.get<string>('GOOGLE_AUTH_SECRET_LOGIN');
+        const UID = this.configService.get<string>('GOOGLE_AUTH_UID');
+        const SECRET = this.configService.get<string>('GOOGLE_AUTH_SECRET');
 
-        const API_URL = 'https://accounts.google.com';
-        const form = new FormData();
+        const API_URL = 'https://oauth2.googleapis.com';
+        const form = new URLSearchParams();
         form.append('grant_type', 'authorization_code');
+        form.append('code', code);
         form.append('client_id', UID as string);
         form.append('client_secret', SECRET as string);
-        form.append('code', code);
-        form.append('redirect_uri', 'http://localhost:3000/api/auth-google/register');
+        form.append('redirect_uri', 'http://localhost:3000/api/auth-google/login');
 
-        const responseToken = await fetch(API_URL + '/o/oauth2/v2/auth', {
+        const responseToken = await fetch(API_URL + '/token', {
             method: 'POST',
             body: form,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         });
         const dataToken = await responseToken.json();
-        console.log(dataToken.access_token);
-        // this.oauthClient = new google.auth.OAuth2(UID, SECRET);
 
-        // const { tokens } = await this.oauthClient.getToken(code);
-        // this.oauthClient.setCredentials(tokens);
-        // const oauth2 = google.oauth2({ version: 'v2', auth: this.oauthClient });
-        // const userInfo = await oauth2.userinfo.get();
-        // console.log("userInfo " + JSON.stringify(userInfo));
-        return new SuccessDataResult<User>(null, Messages.SuccessfulLogin);
+        const userInfoUrl = 'https://www.googleapis.com/oauth2/v2/userinfo';
+        const userInfoHeaders = { 'Authorization': `Bearer ${dataToken.access_token}` };
+        const responseUserInfo = await fetch(userInfoUrl, { headers: userInfoHeaders });
+        const userInfo = await responseUserInfo.json();
+        console.log("userInfo " + JSON.stringify(userInfo));
+        let password:string = String(userInfo.url + "sifredeneme");
+        const userForRegisterDto: UserForRegisterDto = {
+          email: userInfo.email,
+          password: password,
+          firstName: userInfo.first_name,
+          lastName: userInfo.last_name,
+          nickName: userInfo.login,
+        };
+        const userExists = this.authService.userExists(userForRegisterDto);
+        if (!(await userExists).success) {
+          return new ErrorDataResult<User>(null, (await userExists).message);
+        }
+        const result = await this.authService.register(
+          userForRegisterDto,
+          password,
+        );
+        return new SuccessDataResult<User>(null, Messages.UserRegistered);
     }
 
     public async register(code: string): Promise<IDataResult<User>> {
