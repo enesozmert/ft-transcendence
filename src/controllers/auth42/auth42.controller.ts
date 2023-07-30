@@ -25,7 +25,7 @@ export class Auth42Controller {
     const userToLogin = await this.auth42Service.login(code);
     if (!userToLogin.success) {
       return response.redirect(
-        'http://localhost:4200/redirection-auth42/' + "" + '/' + (await userToLogin).success + '/' + (await userToLogin).message,
+        'http://localhost:4200/redirection-auth42/' + "none" + '/' + (await userToLogin).success + '/' + (await userToLogin).message,
       );
     }
 
@@ -41,7 +41,7 @@ export class Auth42Controller {
     const registerResult = this.auth42Service.register(code);
     if (!(await registerResult).success){
       return response.redirect(
-        'http://localhost:4200/redirection-auth42/' + "" + '/' + (await registerResult).success + '/' + (await registerResult).message,
+        'http://localhost:4200/redirection-auth42/' + "none" + '/' + (await registerResult).success + '/' + (await registerResult).message,
       );
     }
 

@@ -1,3 +1,4 @@
+import { RandomHelper } from 'src/core/utilities/random/randomHelper';
 import { JwtHelper } from './../../../core/utilities/security/jwt/jwtHelper';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +12,7 @@ import { Messages } from 'src/business/const/messages';
 import { Auth, google } from 'googleapis';
 import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/errorDataResult';
 import { UserForRegisterDto } from 'src/entities/dto/userForRegisterDto';
+import { UserForLoginDto } from 'src/entities/dto/userForLoginDto';
 
 @Injectable()
 export class AuthGoogleService {
@@ -24,36 +26,41 @@ export class AuthGoogleService {
     }
 
     public async login(code: string): Promise<IDataResult<User>> {
-        const UID = this.configService.get<string>('GOOGLE_AUTH_UID');
-        const SECRET = this.configService.get<string>('GOOGLE_AUTH_SECRET');
+      const userInfo = await this.baseGoogleAuth(code, "login");
+      console.log("userInfo " + JSON.stringify(userInfo));
+      let userForLoginDto: UserForLoginDto = {
+        email: userInfo.email,
+        password: String(userInfo.id + "sifredeneme")
+    };
+    const userToCheck = (
+        await this.userService.getByMail(userForLoginDto.email)
+      ).data;
+      if (!userToCheck) {
+        return new ErrorDataResult<User>(null, Messages.UserNotFound);
+      }
+  
+      const isPasswordValid = await this.hashingHelper.verifyPasswordHash(
+        userForLoginDto.password,
+        userToCheck.passwordhash,
+        userToCheck.passwordsalt,
+      );
+  
+      if (!isPasswordValid) {
+        return new ErrorDataResult<User>(null, Messages.PasswordError);
+      }
+      return new SuccessDataResult<User>(userToCheck, Messages.SuccessfulLogin);
+    }
 
-        const API_URL = 'https://oauth2.googleapis.com';
-        const form = new URLSearchParams();
-        form.append('grant_type', 'authorization_code');
-        form.append('code', code);
-        form.append('client_id', UID as string);
-        form.append('client_secret', SECRET as string);
-        form.append('redirect_uri', 'http://localhost:3000/api/auth-google/login');
-
-        const responseToken = await fetch(API_URL + '/token', {
-            method: 'POST',
-            body: form,
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
-        const dataToken = await responseToken.json();
-
-        const userInfoUrl = 'https://www.googleapis.com/oauth2/v2/userinfo';
-        const userInfoHeaders = { 'Authorization': `Bearer ${dataToken.access_token}` };
-        const responseUserInfo = await fetch(userInfoUrl, { headers: userInfoHeaders });
-        const userInfo = await responseUserInfo.json();
+    public async register(code: string): Promise<IDataResult<User>> {
+        const userInfo = await this.baseGoogleAuth(code, "register");
         console.log("userInfo " + JSON.stringify(userInfo));
-        let password:string = String(userInfo.url + "sifredeneme");
+        let password:string = String(userInfo.id + "sifredeneme");
         const userForRegisterDto: UserForRegisterDto = {
           email: userInfo.email,
           password: password,
-          firstName: userInfo.first_name,
-          lastName: userInfo.last_name,
-          nickName: userInfo.login,
+          firstName: String(userInfo.name).split(" ")[0],
+          lastName: userInfo.family_name,
+          nickName: String(userInfo.name).charAt(0) + String(userInfo.family_name) + RandomHelper.makeText(10),
         };
         const userExists = this.authService.userExists(userForRegisterDto);
         if (!(await userExists).success) {
@@ -63,10 +70,32 @@ export class AuthGoogleService {
           userForRegisterDto,
           password,
         );
-        return new SuccessDataResult<User>(null, Messages.UserRegistered);
+        return new SuccessDataResult<User>(result.data, Messages.UserRegistered);
     }
 
-    public async register(code: string): Promise<IDataResult<User>> {
-        return new SuccessDataResult<User>(null, Messages.UserRegistered);
+    private async baseGoogleAuth(code: string, loginOrRegister: string): Promise<any> {
+      const UID = this.configService.get<string>('GOOGLE_AUTH_UID');
+      const SECRET = this.configService.get<string>('GOOGLE_AUTH_SECRET');
+
+      const API_URL = 'https://oauth2.googleapis.com';
+      const form = new URLSearchParams();
+      form.append('grant_type', 'authorization_code');
+      form.append('code', code);
+      form.append('client_id', UID as string);
+      form.append('client_secret', SECRET as string);
+      form.append('redirect_uri', 'http://localhost:3000/api/auth-google/' + loginOrRegister);
+
+      const responseToken = await fetch(API_URL + '/token', {
+          method: 'POST',
+          body: form,
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      const dataToken = await responseToken.json();
+
+      const userInfoUrl = 'https://www.googleapis.com/oauth2/v2/userinfo';
+      const userInfoHeaders = { 'Authorization': `Bearer ${dataToken.access_token}` };
+      const responseUserInfo = await fetch(userInfoUrl, { headers: userInfoHeaders });
+      const userInfo = await responseUserInfo.json();
+      return (userInfo);
     }
 }

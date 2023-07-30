@@ -35,5 +35,5 @@ export class Messages {
     'Website not accessed error';
   public static readonly NoSuchHostExist: string =
     'No such host is known to exist';
-  public static readonly UrlAlreadyExists: string = 'Url already exists';
+  public static readonly UrlAlreadyExists: string = 'Url Already Exists';
 }

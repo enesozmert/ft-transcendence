@@ -21,82 +21,42 @@ export class Auth42Service {
     private readonly configService: ConfigService,
     private readonly hashingHelper: HashingHelper,
     private readonly tokenHelper: JwtHelper,
-  ) {}
+  ) { }
 
   public async login(code: string): Promise<IDataResult<User>> {
-    const UID = this.configService.get<string>('42AUTH_UID_LOGIN');
-    const SECRET = this.configService.get<string>('42AUTH_SECRET_LOGIN');
-    const API_URL = 'https://api.intra.42.fr';
-    const form = new FormData();
-    form.append('grant_type', 'authorization_code');
-    form.append('client_id', UID as string);
-    form.append('client_secret', SECRET as string);
-    form.append('code', code);
-    form.append('redirect_uri', 'http://localhost:3000/api/auth42/login');
-
-    const responseToken = await fetch(API_URL + '/oauth/token', {
-      method: 'POST',
-      body: form,
-    });
-    const dataToken = await responseToken.json();
-    const responseInfo = await fetch('https://api.intra.42.fr/v2/me', {
-      headers: {
-        Authorization: 'Bearer ' + dataToken.access_token,
-      },
-    });
-    const dataInfo = await responseInfo.json();
+    const userInfo = await this.base42Auth(code, "login");
     let userForLoginDto: UserForLoginDto = {
-        email: dataInfo.email,
-        password: String(dataInfo.url + "sifredeneme")
+      email: userInfo.email,
+      password: String(userInfo.url + "sifredeneme")
     };
     const userToCheck = (
-        await this.userService.getByMail(userForLoginDto.email)
-      ).data;
-      if (!userToCheck) {
-        return new ErrorDataResult<User>(null, Messages.UserNotFound);
-      }
-  
-      const isPasswordValid = await this.hashingHelper.verifyPasswordHash(
-        userForLoginDto.password,
-        userToCheck.passwordhash,
-        userToCheck.passwordsalt,
-      );
-  
-      if (!isPasswordValid) {
-        return new ErrorDataResult<User>(null, Messages.PasswordError);
-      }
-      return new SuccessDataResult<User>(userToCheck, Messages.SuccessfulLogin);
+      await this.userService.getByMail(userForLoginDto.email)
+    ).data;
+    if (!userToCheck) {
+      return new ErrorDataResult<User>(null, Messages.UserNotFound);
+    }
+
+    const isPasswordValid = await this.hashingHelper.verifyPasswordHash(
+      userForLoginDto.password,
+      userToCheck.passwordhash,
+      userToCheck.passwordsalt,
+    );
+
+    if (!isPasswordValid) {
+      return new ErrorDataResult<User>(null, Messages.PasswordError);
+    }
+    return new SuccessDataResult<User>(userToCheck, Messages.SuccessfulLogin);
   }
 
   public async register(code: string): Promise<IDataResult<User>> {
-    const UID = this.configService.get<string>('42AUTH_UID_REGISTER');
-    const SECRET = this.configService.get<string>('42AUTH_SECRET_REGISTER');
-    const API_URL = 'https://api.intra.42.fr';
-    const form = new FormData();
-    form.append('grant_type', 'authorization_code');
-    form.append('client_id', UID as string);
-    form.append('client_secret', SECRET as string);
-    form.append('code', code);
-    form.append('redirect_uri', 'http://localhost:3000/api/auth42/register');
-
-    const responseToken = await fetch(API_URL + '/oauth/token', {
-      method: 'POST',
-      body: form,
-    });
-    const dataToken = await responseToken.json();
-    const responseInfo = await fetch('https://api.intra.42.fr/v2/me', {
-      headers: {
-        Authorization: 'Bearer ' + dataToken.access_token,
-      },
-    });
-    const dataInfo = await responseInfo.json();
-    let password:string = String(dataInfo.url + "sifredeneme");
+    const userInfo = await this.base42Auth(code, "register");
+    let password: string = String(userInfo.url + "sifredeneme");
     const userForRegisterDto: UserForRegisterDto = {
-      email: dataInfo.email,
+      email: userInfo.email,
       password: password,
-      firstName: dataInfo.first_name,
-      lastName: dataInfo.last_name,
-      nickName: dataInfo.login,
+      firstName: userInfo.first_name,
+      lastName: userInfo.last_name,
+      nickName: userInfo.login,
     };
     const userExists = this.authService.userExists(userForRegisterDto);
     if (!(await userExists).success) {
@@ -107,5 +67,30 @@ export class Auth42Service {
       password,
     );
     return new SuccessDataResult<User>(result.data, Messages.UserRegistered);
+  }
+
+  private async base42Auth(code: string, loginOrRegister: string): Promise<any> {
+    const UID = this.configService.get<string>('42AUTH_UID');
+    const SECRET = this.configService.get<string>('42AUTH_SECRET');
+    const API_URL = 'https://api.intra.42.fr';
+    const form = new FormData();
+    form.append('grant_type', 'authorization_code');
+    form.append('client_id', UID as string);
+    form.append('client_secret', SECRET as string);
+    form.append('code', code);
+    form.append('redirect_uri', 'http://localhost:3000/api/auth42/'+ loginOrRegister);
+
+    const responseToken = await fetch(API_URL + '/oauth/token', {
+      method: 'POST',
+      body: form,
+    });
+    const dataToken = await responseToken.json();
+    const responseInfo = await fetch('https://api.intra.42.fr/v2/me', {
+      headers: {
+        Authorization: 'Bearer ' + dataToken.access_token,
+      },
+    });
+    const dataInfo = await responseInfo.json();
+    return dataInfo;
   }
 }

@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 @Controller('api/auth-google')
 export class AuthGoogleController {
     constructor(
-        private readonly auth42Service: AuthGoogleService,
+        private readonly authGoogleService: AuthGoogleService,
         private readonly authService: AuthService,
         private readonly configService: ConfigService,
       ) {}
@@ -15,10 +15,10 @@ export class AuthGoogleController {
       @Get('login')
       async login(@Res() response: Response, @Req() request: Request) {
         const code = String(request.query.code);
-        const userToLogin = await this.auth42Service.login(code);
+        const userToLogin = await this.authGoogleService.login(code);
         if (!userToLogin.success) {
           return response.redirect(
-            'http://localhost:4200/redirection-auth-google/' + "" + '/' + (await userToLogin).success + '/' + (await userToLogin).message,
+            'http://localhost:4200/redirection-auth-google/' + "none" + '/' + (await userToLogin).success + '/' + (await userToLogin).message,
           );
         }
     
@@ -31,10 +31,10 @@ export class AuthGoogleController {
       @Get('register')
       async register(@Res() response: Response, @Req() request: Request) {
         const code = String(request.query.code);
-        const registerResult = this.auth42Service.register(code);
+        const registerResult = this.authGoogleService.register(code);
         if (!(await registerResult).success){
           return response.redirect(
-            'http://localhost:4200/redirection-auth-google/' + "" + '/' + (await registerResult).success + '/' + (await registerResult).message,
+            'http://localhost:4200/redirection-auth-google/' + "none" + '/' + (await registerResult).success + '/' + (await registerResult).message,
           );
         }
     
