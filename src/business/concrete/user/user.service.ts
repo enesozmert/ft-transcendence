@@ -1,3 +1,4 @@
+import { UserForSearchDto } from './../../../entities/dto/userForSearchDto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IResult } from 'src/core/utilities/result/abstract/IResult';
@@ -10,6 +11,7 @@ import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity
 import { OperationClaimDal } from 'src/dataAccess/concrete/operationClaimDal';
 import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
 import { Messages } from 'src/business/const/messages';
+import { SelectQueryBuilder } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -39,9 +41,27 @@ export class UserService {
       Messages.UserGetByMail,
     );
   }
-  public async getByNickName(nickname: string): Promise<IDataResult<User>> {
-    const user = await this.userDal.findOne({ where: { nickname: nickname } });
-    return { success: true, data: user };
+  public async getByNickName(nickName: string): Promise<IDataResult<User>> {
+    return await new SuccessDataResult<User>(
+      await this.userDal.findOne({ where: { nickName: nickName } }),
+      Messages.UserGetByNickName,
+    );
+  }
+
+  public async getByAttributes(attributes: Partial<UserForSearchDto>): Promise<IDataResult<User[]>> {
+    const queryBuilder: SelectQueryBuilder<User> = this.userDal.createQueryBuilder('user');
+
+    Object.entries(attributes).forEach(([key, value]) => {
+      if (value) {
+        queryBuilder.andWhere(`user.${key} LIKE :${key}`, { [key]: value });
+      }
+    });
+
+    const users: User[] = await queryBuilder.getMany();
+    return await new SuccessDataResult<User[]>(
+      users,
+      Messages.UserGetAttributes,
+    );
   }
 
   public async add(user: User): Promise<IDataResult<User>> {

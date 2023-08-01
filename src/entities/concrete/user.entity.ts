@@ -6,13 +6,13 @@ export class User {
   id: number;
 
   @Column({ length: 50, nullable: true })
-  firstname: string;
+  firstName: string;
 
   @Column({ length: 50, nullable: true })
-  lastname: string;
+  lastName: string;
 
   @Column({ length: 50 })
-  nickname: string;
+  nickName: string;
 
   @Column({ type: 'bytea', nullable: true })
   passwordhash: Buffer;
@@ -30,7 +30,7 @@ export class User {
   email: string;
 
   @Column({ length: 50, nullable: false })
-  verificationcode: string;
+  verificationCode: string;
 
   @Column({ type: 'timestamp without time zone', nullable: true })
   updatetime: Date;
@@ -39,7 +39,7 @@ export class User {
   explanation: string;
 
   @Column({ default: false })
-  isverified: boolean;
+  isVerified: boolean;
 
   @Column({ nullable: true })
   status: boolean;

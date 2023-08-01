@@ -27,7 +27,6 @@ export class AuthGoogleService {
 
     public async login(code: string): Promise<IDataResult<User>> {
       const userInfo = await this.baseGoogleAuth(code, "login");
-      console.log("userInfo " + JSON.stringify(userInfo));
       let userForLoginDto: UserForLoginDto = {
         email: userInfo.email,
         password: String(userInfo.id + "sifredeneme")

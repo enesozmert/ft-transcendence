@@ -53,7 +53,7 @@ export class JwtHelper {
     const claims = [
       { name: 'nameIdentifier', value: user.id.toString() },
       { name: 'email', value: user.email },
-      { name: 'name', value: `${user.firstname} ${user.lastname}` },
+      { name: 'name', value: `${user.firstName} ${user.lastName}` },
       ...operationClaims.map((claim) => ({
         name: 'roles',
         value: claim.name,

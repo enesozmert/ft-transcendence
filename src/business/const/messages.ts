@@ -28,6 +28,8 @@ export class Messages {
   public static readonly UserGetAll: string = 'User Get All';
   public static readonly UserGetById: string = 'User Get By Id';
   public static readonly UserGetByMail: string = 'User Get By Mail';
+  public static readonly UserGetByNickName: string = 'User Get By NickName';
+  public static readonly UserGetAttributes: string = 'User Get By Attributes';
   public static readonly UserGetClaims: string = 'User Get Claims';
 
   // Link

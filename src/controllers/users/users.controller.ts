@@ -1,8 +1,10 @@
-import * as common from '@nestjs/common';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpStatus, Post, Query, Req, Res } from '@nestjs/common';
 import { UserService } from 'src/business/concrete/user/user.service';
+import { Request, Response } from 'express';
+import { User } from 'src/entities/concrete/user.entity';
+import { UserForSearchDto } from 'src/entities/dto/userForSearchDto';
 
-@common.Controller('api/users')
+@Controller('api/users')
 export class UsersController {
   constructor(private readonly usersService: UserService) {}
 
@@ -11,16 +13,26 @@ export class UsersController {
   //   return this.usersService.create(user);
   // }
 
-  @common.Get('/getall')
+  @Get('/getall')
   async getAll() {
     const result = this.usersService.getAll();
     if ((await result).success) return result;
     throw new BadRequestException(result);
   }
 
-  @common.Get('/getbyid')
-  findOne(@common.Query('id') id: string) {
+  @Get('/getbyid')
+  async getById(@Query('id') id: string) {
     return this.usersService.getById(+id);
+  }
+
+  @Post('/getbyattributes')
+  async getByAttributes(@Res() response: Response, @Req() request: Request) {
+    const user: UserForSearchDto = request.body;
+    const result = await this.usersService.getByAttributes(user);
+    if (result.success) {
+      return response.status(HttpStatus.OK).send(await result);
+    }
+    return response.status(HttpStatus.BAD_REQUEST).send(await result);
   }
 
   // @common.Patch(':id')
