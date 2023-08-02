@@ -53,7 +53,7 @@ export class UserService {
 
     Object.entries(attributes).forEach(([key, value]) => {
       if (value) {
-        queryBuilder.andWhere(`user.${key} LIKE :${key}`, { [key]: value });
+        queryBuilder.andWhere(`user.${key} LIKE :${key}`, { [key]: `%${value}%` });
       }
     });
 

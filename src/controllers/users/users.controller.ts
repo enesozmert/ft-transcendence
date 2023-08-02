@@ -25,10 +25,22 @@ export class UsersController {
     return this.usersService.getById(+id);
   }
 
+  @Get('/getbynickname')
+  async getByNickName(@Res() response: Response, @Req() request: Request) {
+    let userNickName: string = String(request.query.nickname);
+    const result = await this.usersService.getByNickName(userNickName);
+
+    if (result.success) {
+      return response.status(HttpStatus.OK).send(await result);
+    }
+    return response.status(HttpStatus.BAD_REQUEST).send(await result);
+  }
+
   @Post('/getbyattributes')
   async getByAttributes(@Res() response: Response, @Req() request: Request) {
     const user: UserForSearchDto = request.body;
     const result = await this.usersService.getByAttributes(user);
+    
     if (result.success) {
       return response.status(HttpStatus.OK).send(await result);
     }
