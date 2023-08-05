@@ -4,26 +4,27 @@ import { User } from './user.entity';
 @Entity('UserInfos')
 export class UserInfos {
   @PrimaryGeneratedColumn()
-  Id: number;
+  id: number;
 
   @Column()
-  UserId: number;
+  userId: number;
 
   @Column()
-  LoginDate: Date;
+  loginDate: Date;
 
   @Column()
-  ProfileCheck: boolean;
+  profileCheck: boolean;
 
   @Column({ nullable: true })
-  ProfileImagePath: string;
+  profileImagePath: string;
 
   @Column({ nullable: true })
-  ProfileText: string;
+  profileText: string;
 
   @Column()
-  Gender: boolean;
+  gender: boolean;
 
   @Column({ type: 'timestamp', nullable: true })
-  BirthdayDate: Date;
+  birthdayDate: Date;
+
 }

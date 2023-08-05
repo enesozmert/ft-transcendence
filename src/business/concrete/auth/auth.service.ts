@@ -32,16 +32,16 @@ export class AuthService {
     const user: User = {
       email: userForRegisterDto.email,
       verificationCode: 'emailVerifCode',
-      firstName: userForRegisterDto.firstName,
-      lastName: userForRegisterDto.lastName,
-      nickName: userForRegisterDto.nickName,
+      firstName: '',
+      lastName: '',
+      nickName: '',
       passwordhash: passwordHash,
       passwordsalt: passwordSalt,
       address: '',
       isVerified: false,
       phone: '',
       updatetime: new Date(),
-      status: true,
+      status: false,
       id: 0,
       explanation: '',
     };
@@ -96,14 +96,6 @@ export class AuthService {
     if (userByMail.data !== null) {
       return new ErrorResult(Messages.UserAlreadyExists);
     }
-
-    const userByNickname = await this.userService.getByNickName(
-      userForRegisterDto.nickName,
-    );
-    if (userByNickname.data !== null) {
-      return new ErrorResult(Messages.UserAlreadyExists);
-    }
-
     return new SuccessResult();
   }
 }

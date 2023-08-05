@@ -44,5 +44,4 @@ export class User {
 
   @Column({ nullable: true })
   status: boolean;
-
 }

@@ -36,6 +36,17 @@ export class UsersController {
     return response.status(HttpStatus.BAD_REQUEST).send(await result);
   }
 
+  @Get('/getbymail')
+  async getByMail(@Res() response: Response, @Req() request: Request) {
+    let userMail: string = String(request.query.email);
+    const result = await this.usersService.getByMail(userMail);
+
+    if (result.success) {
+      return response.status(HttpStatus.OK).send(await result);
+    }
+    return response.status(HttpStatus.BAD_REQUEST).send(await result);
+  }
+
   @Post('/getbyattributes')
   async getByAttributes(@Res() response: Response, @Req() request: Request) {
     const user: UserForSearchDto = request.body;
@@ -47,10 +58,16 @@ export class UsersController {
     return response.status(HttpStatus.BAD_REQUEST).send(await result);
   }
 
-  // @common.Patch(':id')
-  // update(@common.Param('id') id: string, @common.Body() user: User) {
-  //   return this.usersService.update(+id, user);
-  // }
+  @Post('/update')
+  async update(@Res() response: Response, @Req() request: Request) {
+    let user: User = request.body;
+    const result = await this.usersService.update(user);;
+    
+    if (result.success) {
+      return response.status(HttpStatus.OK).send(await result);
+    }
+    return response.status(HttpStatus.BAD_REQUEST).send(await result);
+  }
 
   // @common.Delete(':id')
   // delete(@common.Param('id') id: string) {

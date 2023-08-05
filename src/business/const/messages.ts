@@ -31,6 +31,7 @@ export class Messages {
   public static readonly UserGetByNickName: string = 'User Get By NickName';
   public static readonly UserGetAttributes: string = 'User Get By Attributes';
   public static readonly UserGetClaims: string = 'User Get Claims';
+  public static readonly UserGetStatus: string = 'User Get Status';
 
   // Link
   public static readonly WebsiteNotAccessedError: string =

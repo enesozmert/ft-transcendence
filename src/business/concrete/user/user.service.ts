@@ -70,12 +70,10 @@ export class UserService {
   }
 
   public async update(
-    id: number,
-    updatedUser: Partial<User>,
+    updatedUser: User,
   ): Promise<IResult> {
-    const user = await this.userDal.findOne({ where: { id: id } });
+    const user = await this.userDal.findOne({ where: { id: updatedUser.id } });
     if (!user) {
-      // throw new Error('User not found');
       return new ErrorResult(Messages.UserNotFound);
     }
     const mergedUser = this.userDal.merge(user, updatedUser);
