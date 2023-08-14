@@ -1,7 +1,7 @@
 import { UserForSearchDto } from './../../../entities/dto/userForSearchDto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IResult } from 'src/core/utilities/result/abstract/IResult';
+import { IResult } from 'src/core/utilities/result/abstract/iResult';
 import { IDataResult } from 'src/core/utilities/result/abstract/iDataResult';
 import { SuccessDataResult } from 'src/core/utilities/result/concrete/dataResult/successDataResult';
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
@@ -15,93 +15,93 @@ import { SelectQueryBuilder } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(User) private userDal: UserDal,
-    @InjectRepository(OperationClaim)
-    private operationClaimDal: OperationClaimDal,
-  ) {}
+	constructor(
+		@InjectRepository(User) private userDal: UserDal,
+		@InjectRepository(OperationClaim)
+		private operationClaimDal: OperationClaimDal,
+	) { }
 
-  public async getAll(): Promise<IDataResult<User[]>> {
-    return new SuccessDataResult<User[]>(
-      await this.userDal.find(),
-      Messages.UserGetAll,
-    );
-  }
+	public async getAll(): Promise<IDataResult<User[]>> {
+		return new SuccessDataResult<User[]>(
+			await this.userDal.find(),
+			Messages.UserGetAll,
+		);
+	}
 
-  public async getById(id: number): Promise<IDataResult<User>> {
-    return await new SuccessDataResult<User>(
-      await this.userDal.findOne({ where: { id: id } }),
-      Messages.UserGetById,
-    );
-  }
+	public async getById(id: number): Promise<IDataResult<User>> {
+		return await new SuccessDataResult<User>(
+			await this.userDal.findOne({ where: { id: id } }),
+			Messages.UserGetById,
+		);
+	}
 
-  public async getByMail(email: string): Promise<IDataResult<User>> {
-    return await new SuccessDataResult<User>(
-      await this.userDal.findOne({ where: { email: email } }),
-      Messages.UserGetByMail,
-    );
-  }
-  public async getByNickName(nickName: string): Promise<IDataResult<User>> {
-    return await new SuccessDataResult<User>(
-      await this.userDal.findOne({ where: { nickName: nickName } }),
-      Messages.UserGetByNickName,
-    );
-  }
+	public async getByMail(email: string): Promise<IDataResult<User>> {
+		return await new SuccessDataResult<User>(
+			await this.userDal.findOne({ where: { email: email } }),
+			Messages.UserGetByMail,
+		);
+	}
+	public async getByNickName(nickName: string): Promise<IDataResult<User>> {
+		return await new SuccessDataResult<User>(
+			await this.userDal.findOne({ where: { nickName: nickName } }),
+			Messages.UserGetByNickName,
+		);
+	}
 
-  public async getByAttributes(attributes: Partial<UserForSearchDto>): Promise<IDataResult<User[]>> {
-    const queryBuilder: SelectQueryBuilder<User> = this.userDal.createQueryBuilder('user');
+	public async getByAttributes(attributes: Partial<UserForSearchDto>): Promise<IDataResult<User[]>> {
+		const queryBuilder: SelectQueryBuilder<User> = this.userDal.createQueryBuilder('user');
 
-    Object.entries(attributes).forEach(([key, value]) => {
-      if (value) {
-        queryBuilder.andWhere(`user.${key} LIKE :${key}`, { [key]: `%${value}%` });
-      }
-    });
+		Object.entries(attributes).forEach(([key, value]) => {
+			if (value) {
+				queryBuilder.andWhere(`user.${key} LIKE :${key}`, { [key]: `%${value}%` });
+			}
+		});
 
-    const users: User[] = await queryBuilder.getMany();
-    return await new SuccessDataResult<User[]>(
-      users,
-      Messages.UserGetAttributes,
-    );
-  }
+		const users: User[] = await queryBuilder.getMany();
+		return await new SuccessDataResult<User[]>(
+			users,
+			Messages.UserGetAttributes,
+		);
+	}
 
-  public async add(user: User): Promise<IDataResult<User>> {
-    const addedUser = await this.userDal.save(user);
-    return new SuccessDataResult<User>(addedUser, Messages.UserAdded);
-  }
+	public async add(user: User): Promise<IDataResult<User>> {
+		const addedUser = await this.userDal.save(user);
+		return new SuccessDataResult<User>(addedUser, Messages.UserAdded);
+	}
 
-  public async update(
-    updatedUser: User,
-  ): Promise<IResult> {
-    const user = await this.userDal.findOne({ where: { id: updatedUser.id } });
-    if (!user) {
-      return new ErrorResult(Messages.UserNotFound);
-    }
-    const mergedUser = this.userDal.merge(user, updatedUser);
-    await this.userDal.save(mergedUser);
-    return new SuccessResult(Messages.UserUpdate);
-  }
+	public async update(
+		updatedUser: User,
+	): Promise<IResult> {
+		const user = await this.userDal.findOne({ where: { id: updatedUser.id } });
+		if (!user) {
+			return new ErrorResult(Messages.UserNotFound);
+		}
+		const mergedUser = this.userDal.merge(user, updatedUser);
+		await this.userDal.save(mergedUser);
+		return new SuccessResult(Messages.UserUpdate);
+	}
 
-  public async delete(id: number): Promise<IResult> {
-    await this.userDal.delete(id);
-    return new SuccessResult(Messages.UserDeleted);
-  }
+	public async delete(id: number): Promise<IResult> {
+		await this.userDal.delete(id);
+		return new SuccessResult(Messages.UserDeleted);
+	}
 
-  public async getClaims(user: User): Promise<IDataResult<OperationClaim[]>> {
-    const result = await this.operationClaimDal
-      .createQueryBuilder('operationClaim')
-      .innerJoin(
-        'operationClaim.userOperationClaims',
-        'userOperationClaim',
-        'userOperationClaim.userId = :userId',
-        { userId: user.id },
-      )
-      .select([
-        'operationClaim.id',
-        'operationClaim.name',
-        'operationClaim.explanation',
-        'operationClaim.description',
-      ])
-      .getMany();
-    return new SuccessDataResult<OperationClaim[]>(result, Messages.UserGetClaims);
-  }
+	public async getClaims(user: User): Promise<IDataResult<OperationClaim[]>> {
+		const result = await this.operationClaimDal
+			.createQueryBuilder('operationClaim')
+			.innerJoin(
+				'operationClaim.userOperationClaims',
+				'userOperationClaim',
+				'userOperationClaim.userId = :userId',
+				{ userId: user.id },
+			)
+			.select([
+				'operationClaim.id',
+				'operationClaim.name',
+				'operationClaim.explanation',
+				'operationClaim.description',
+			])
+			.getMany();
+		return new SuccessDataResult<OperationClaim[]>(result, Messages.UserGetClaims);
+	}
 }

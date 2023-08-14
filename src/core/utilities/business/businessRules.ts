@@ -1,12 +1,12 @@
-import { IResult } from '../result/abstract/IResult';
+import { IResult } from '../result/abstract/iResult';
 
 export class BusinessRules {
-  public static run(...logics: IResult[]): IResult | null {
-    for (const logic of logics) {
-      if (!logic.success) {
-        return logic;
-      }
-    }
-    return null;
-  }
+	public static run(...logics: IResult[]): IResult | null {
+		for (const logic of logics) {
+			if (!logic.success) {
+				return logic;
+			}
+		}
+		return null;
+	}
 }

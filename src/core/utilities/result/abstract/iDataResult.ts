@@ -1,5 +1,5 @@
-import { IResult } from './IResult';
+import { IResult } from './iResult';
 
 export interface IDataResult<T> extends IResult {
-  data: T;
+	data: T;
 }
