@@ -34,7 +34,7 @@ export class AuthService {
 			verificationCode: 'emailVerifCode',
 			firstName: '',
 			lastName: '',
-			nickName: '',
+			nickName: userForRegisterDto.nickName,
 			passwordhash: passwordHash,
 			passwordsalt: passwordSalt,
 			address: '',
