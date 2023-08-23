@@ -36,16 +36,6 @@ export class UsersController {
     return response.status(HttpStatus.BAD_REQUEST).send(await result);
   }
 
-  // @Get('/getbynickname')
-  // async getByNickName(@Res() response: Response, @Req() request: Request, @Query('nickname') nickName: string) {
-  //   const result = await this.usersService.getByNickName(nickName);
-
-  //   if (result.success) {
-  //     return response.status(HttpStatus.OK).send(await result);
-  //   }
-  //   return response.status(HttpStatus.BAD_REQUEST).send(await result);
-  // }
-
   @Get('/getbymail')
   async getByMail(@Res() response: Response, @Req() request: Request) {
     let userMail: string = String(request.query.email);
