@@ -39,4 +39,28 @@ export class Messages {
   public static readonly NoSuchHostExist: string =
     'No such host is known to exist';
   public static readonly UrlAlreadyExists: string = 'Url Already Exists';
+
+  //GameHistory
+  public static readonly GameHistoryAdded: string = 'GameHistory Added';
+  public static readonly GameHistoryDeleted: string = 'GameHistory Deleted';
+  public static readonly GameHistoryUpdate: string = 'GameHistory Updated';
+  public static readonly GameHistoryGetAll: string = 'GameHistory Get All';
+  public static readonly GameHistoryGetById: string = 'GameHistory Get By Id';
+  public static readonly GameHistoryNotFound: string = 'GameHistory Not Found';
+
+  //GameResultName
+  public static readonly GameResultNameAdded: string = 'GameResultName Added';
+  public static readonly GameResultNameDeleted: string = 'GameResultName Deleted';
+  public static readonly GameResultNameUpdate: string = 'GameResultName Updated';
+  public static readonly GameResultNameGetAll: string = 'GameResultName Get All';
+  public static readonly GameResultNameGetById: string = 'GameResultName Get By Id';
+  public static readonly GameResultNameNotFound: string = 'GameResultName Not Found';
+
+  //GameResultName
+  public static readonly GameScoreAdded: string = 'GameScore Added';
+  public static readonly GameScoreDeleted: string = 'GameScore Deleted';
+  public static readonly GameScoreUpdate: string = 'GameScore Updated';
+  public static readonly GameScoreGetAll: string = 'GameScore Get All';
+  public static readonly GameScoreGetById: string = 'GameScore Get By Id';
+  public static readonly GameScoreNotFound: string = 'GameScore Not Found';
 }

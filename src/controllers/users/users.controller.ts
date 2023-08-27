@@ -61,7 +61,7 @@ export class UsersController {
   @Post('/update')
   async update(@Res() response: Response, @Req() request: Request) {
     let user: User = request.body;
-    const result = await this.usersService.update(user);;
+    const result = await this.usersService.update(user);
     
     if (result.success) {
       return response.status(HttpStatus.OK).send(await result);

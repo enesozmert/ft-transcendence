@@ -54,6 +54,7 @@ export class JwtHelper {
       { name: 'nameIdentifier', value: user.id.toString() },
       { name: 'email', value: user.email },
       { name: 'name', value: `${user.firstName} ${user.lastName}` },
+      { name: 'nickName', value: `${user.nickName}` },
       { name: 'status', value: `${user.status}` },
       { name: 'isVerified', value: `${user.isVerified}` },
       ...operationClaims.map((claim) => ({

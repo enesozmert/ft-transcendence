@@ -1,3 +1,6 @@
+import { GameResultNameModule } from './modules/game-result-name/game-result-name.module';
+import { GameScoreModule } from './modules/game-score/game-score.module';
+import { GameHistoryModule } from './modules/game-history/game-history.module';
 import { AuthGoogleModule } from './modules/auth-google/auth-google.module';
 import { Auth42Module } from './modules/auth42/auth42.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -20,6 +23,9 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     AuthModule,
     Auth42Module,
     AuthGoogleModule,
+    GameHistoryModule,
+    GameScoreModule,
+    GameResultNameModule
   ],
   controllers: [AppController],
   providers: [AppService],
