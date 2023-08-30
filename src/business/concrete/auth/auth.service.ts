@@ -96,6 +96,12 @@ export class AuthService {
 		if (userByMail.data !== null) {
 			return new ErrorResult(Messages.UserAlreadyExists);
 		}
+		const userNickName = await this.userService.getByNickName(
+			userForRegisterDto.nickName,
+		);
+		if (userNickName.data !== null) {
+			return new ErrorResult(Messages.UserAlreadyExists);
+		}
 		return new SuccessResult();
 	}
 }

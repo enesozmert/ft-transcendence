@@ -1,3 +1,4 @@
+import { GameModule } from './modules/game/game.module';
 import { GameResultNameModule } from './modules/game-result-name/game-result-name.module';
 import { GameScoreModule } from './modules/game-score/game-score.module';
 import { GameHistoryModule } from './modules/game-history/game-history.module';
@@ -25,7 +26,8 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     AuthGoogleModule,
     GameHistoryModule,
     GameScoreModule,
-    GameResultNameModule
+    GameResultNameModule,
+    GameModule
   ],
   controllers: [AppController],
   providers: [AppService],

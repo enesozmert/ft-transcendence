@@ -1,4 +1,4 @@
 import { Controller } from '@nestjs/common';
 
-@Controller('game-result-names')
+@Controller('api/game-result-names')
 export class GameResultNamesController {}

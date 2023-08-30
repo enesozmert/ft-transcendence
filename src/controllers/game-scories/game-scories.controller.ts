@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { GameScore } from 'src/entities/concrete/gameScore.entity';
 
-@Controller('game-scories')
+@Controller('api/game-scories')
 export class GameScoriesController {
     constructor(private gameScoreService: GameScoreService) { }
 

@@ -3,7 +3,7 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, 
 import { GameHistoryService } from 'src/business/concrete/game-history/game-history.service';
 import { Request, Response } from 'express';
 
-@Controller('game-histories')
+@Controller('api/game-histories')
 export class GameHistoriesController {
 
     constructor(private gameHistoryService: GameHistoryService) { }
