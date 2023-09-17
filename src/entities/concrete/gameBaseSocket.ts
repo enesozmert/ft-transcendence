@@ -1,4 +1,4 @@
 export class GameBaseSocket {
-    totalConnection: number;
-    playerCount: number;
+  totalConnection: number;
+  playerCount: number;
 }

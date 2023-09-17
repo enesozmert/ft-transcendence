@@ -40,7 +40,12 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     const disconnectedUser = this.findDisconnectedUser(client);
 
     if (disconnectedUser) {
+      const responseData = { message: 'true' };
+      disconnectedUser.socket.emit('gameDisconnected', responseData);
+      this.userSocket.delete(disconnectedUser.nickName);
       this.connectedUserSocket.delete(disconnectedUser.nickName);
+      this.gameRoomsSocket.delete(this.nextRoomId);
+      console.log('disconnect user');
     }
   }
 
@@ -76,7 +81,8 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('game')
   async location(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-    console.log('data ' + data.speed);
+    console.log('data.x ' + data.x);
+    console.log('data.y ' + data.y);
   }
 
   @SubscribeMessage('matchmaking')
@@ -112,30 +118,22 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       lastConnectedUser[1].roomName = this.nextRoomId;
       this.connectedUserSocket.set(lastConnectedUser[0], lastConnectedUser[1]);
       responseData = { message: message };
-      // socket.emit('matchmakingResponse', responseData);
-      this.sendMessageRoom(lastRoom, responseData);
       setTimeout(() => {
         responseData = { message: 'Matchmaking Finish' };
-        this.sendMessageRoom(lastRoom, responseData);
+        this.sendMessageRoom('matchmakingResponse', lastRoom, responseData);
+        this.sendMessageRoom('gameRoomId', lastRoom, {
+          message: String(lastRoom[0]),
+        });
       }, 1000);
       console.log('joinRoomx');
     }
-    // for (let i = 0; i < this.gameRoomsSocket.length; i++) {
-    //     console.log("this.connectedUserSocket[i] userHostId " + this.gameRoomsSocket[i].userHostId);
-    //     console.log("this.connectedUserSocket[i] userGuestId " + this.gameRoomsSocket[i]?.userGuestId);
-    //     console.log("this.connectedUserSocket[i] userHostScore " + this.gameRoomsSocket[i].userHostScore);
-    //     console.log("this.connectedUserSocket[i] userGuestScore " + this.gameRoomsSocket[i].userGuestScore);
-    // }
   }
 
   //helper
 
-  async sendMessageRoom(gameRoomSocket: any, responseData: any) {
-    for (const iterator of this.connectedUserSocket) {
-      if (iterator[1].roomName == gameRoomSocket[0]) {
-        iterator[1].socket.emit('matchmakingResponse', responseData);
-      }
-    }
+  async sendMessageRoom(ev: string, gameRoomSocket: any, responseData: any) {
+    gameRoomSocket[1].sockets[0].emit(ev, responseData);
+    gameRoomSocket[1].sockets[1].emit(ev, responseData);
   }
 
   async generateRoom(gameConnectedUserSocket: GameConnectedUserSocket) {
@@ -143,15 +141,16 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       gameConnectedUserSocket.nickName,
     );
     const user = userData.data;
-
+    const sockets: Array<Socket> = new Array<Socket>();
     const newGameRoom: GameRoomSocket = {
       userHostId: user.id,
       userHostScore: 0,
       userGuestId: null,
       userGuestScore: 0,
       resultNameId: 0,
+      sockets: sockets,
     };
-
+    sockets.push(gameConnectedUserSocket.socket);
     this.gameRoomsSocket.set(++this.nextRoomId, newGameRoom);
   }
 
@@ -162,10 +161,10 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       gameConnectedUserSocket.nickName,
     );
     const user = userData.data;
-
     for (const [roomId, room] of this.gameRoomsSocket.entries()) {
       if (!room.userGuestId) {
         room.userGuestId = user.id;
+        room.sockets.push(gameConnectedUserSocket.socket);
         this.gameRoomsSocket.set(roomId, room);
         return 'Matchmaking Join';
       }
