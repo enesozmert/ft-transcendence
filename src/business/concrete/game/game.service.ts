@@ -81,8 +81,18 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('game')
   async location(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-    console.log('data.x ' + data.x);
-    console.log('data.y ' + data.y);
+    // console.log('data.x ' + data.x);
+    // console.log('data.y ' + data.y);
+  }
+
+  @SubscribeMessage('gameRoomSocket')
+  async gameRoomSocket(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+    let lastRoom: [number, GameRoomSocket] | undefined;
+    this.gameRoomsSocket.forEach((value, key) => {
+        lastRoom = [key, value];
+    });
+
+
   }
 
   @SubscribeMessage('matchmaking')
@@ -96,7 +106,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     let lastConnectedUser: [string, GameConnectedUserSocket] | undefined;
     let lastRoom: [number, GameRoomSocket] | undefined;
 
-    let responseData = { message: 'Matchmaking Search' };
+    let responseData = { message: 'Matchmaking Search', data: null };
     socket.emit('matchmakingResponse', responseData);
     this.connectedUserSocket.forEach((value, key) => {
       lastConnectedUser = [key, value];
@@ -117,23 +127,35 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       const message = await this.joinRoom(lastConnectedUser[1]);
       lastConnectedUser[1].roomName = this.nextRoomId;
       this.connectedUserSocket.set(lastConnectedUser[0], lastConnectedUser[1]);
-      responseData = { message: message };
+      responseData = { message: message, data: null };
       setTimeout(() => {
-        responseData = { message: 'Matchmaking Finish' };
-        this.sendMessageRoom('matchmakingResponse', lastRoom, responseData);
-        this.sendMessageRoom('gameRoomId', lastRoom, {
+        responseData = { message: 'Matchmaking Finish', data: null };
+        this.sendMessageRoom('matchmakingResponse', lastRoom[1].sockets, responseData);
+        this.sendMessageRoom('gameRoomId', lastRoom[1].sockets, {
           message: String(lastRoom[0]),
         });
       }, 1000);
+      if (lastRoom) {
+        let gameBaseSocketWithoutSockets = {
+          userHostId: lastRoom[1].userHostId,
+          userGuestId: lastRoom[1].userGuestId,
+          userHostScore: lastRoom[1].userHostScore,
+          userGuestScore: lastRoom[1].userGuestScore,
+          resultNameId: lastRoom[1].resultNameId
+        };
+        const serializedGameBaseSocket = JSON.stringify(gameBaseSocketWithoutSockets);
+        const responseData = { message: 'GameRoomSocketResponse Info', data: serializedGameBaseSocket };
+        this.sendMessageRoom('gameRoomSocketResponse', lastRoom[1].sockets, responseData);
+      }
       console.log('joinRoomx');
     }
   }
 
   //helper
 
-  async sendMessageRoom(ev: string, gameRoomSocket: any, responseData: any) {
-    gameRoomSocket[1].sockets[0].emit(ev, responseData);
-    gameRoomSocket[1].sockets[1].emit(ev, responseData);
+  async sendMessageRoom(ev: string, sockets: Array<Socket>, responseData: any) {
+    sockets[0].emit(ev, responseData);
+    sockets[1].emit(ev, responseData);
   }
 
   async generateRoom(gameConnectedUserSocket: GameConnectedUserSocket) {
