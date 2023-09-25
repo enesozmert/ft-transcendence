@@ -29,12 +29,13 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
   connectedUserSocket = new Map<string, GameConnectedUserSocket>();
   gamebaseSocket = new Map<number, GameBaseSocket>();
   gameRoomsSocket = new Map<number, GameRoomSocket>();
+  paddleArray = [2];
   nextRoomId = 1;
 
   @WebSocketServer()
   server: Server;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
   async handleDisconnect(client: Socket) {
     const disconnectedUser = this.findDisconnectedUser(client);
@@ -75,12 +76,25 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('keydown')
   async keyDown(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-    console.log('paddle host : ' + data.x);
-    console.log('paddle guest : ' + data.x);
+    this.sendPaddleData(data);
+  }
+
+  @SubscribeMessage('ballLocation')
+  async ballLocation(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+    let lastRoom: [number, GameRoomSocket];
+    this.gameRoomsSocket.forEach((value, key) => {
+      lastRoom = [key, value];
+    });
+    console.log("data " + data.x);
+    console.log("data " + data.y);
+    let responseData = { message: 'Ball Location', data: data };
+    this.sendBroadcast("ballLocationResponse", lastRoom[1].sockets, responseData)
+    // console.log('data.x ' + data.x);
+    // console.log('data.y ' + data.y);
   }
 
   @SubscribeMessage('game')
-  async location(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+  async game(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
     // console.log('data.x ' + data.x);
     // console.log('data.y ' + data.y);
   }
@@ -89,7 +103,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
   async gameRoomSocket(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
     let lastRoom: [number, GameRoomSocket] | undefined;
     this.gameRoomsSocket.forEach((value, key) => {
-        lastRoom = [key, value];
+      lastRoom = [key, value];
     });
 
 
@@ -158,6 +172,13 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     sockets[1].emit(ev, responseData);
   }
 
+  async sendBroadcast(ev: string, sockets: Array<Socket>, responseData: any) {
+    for (let index = 0; index < sockets.length; index++) {
+      const element = sockets[index];
+      element.emit(ev, responseData);
+    }
+  }
+
   async generateRoom(gameConnectedUserSocket: GameConnectedUserSocket) {
     const userData = await this.userService.getByNickName(
       gameConnectedUserSocket.nickName,
@@ -192,6 +213,24 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
     return 'Matchmaking Fail';
+  }
+
+  sendPaddleData(data:any): void{
+    let lastRoom: [number, GameRoomSocket];
+    this.gameRoomsSocket.forEach((value, key) => {
+      lastRoom = [key, value];
+    });
+    if (data.whoIs == 0){
+      this.paddleArray[0] = data;
+    }
+    if (data.whoIs == 1){
+      this.paddleArray[1] = data;
+    }
+    const serializeData = JSON.stringify(data);
+    let responseData = { message: 'Paddle', data: serializeData };
+    console.log("paddledata x" + data.x);
+    console.log("paddledata y" + data.y);
+    this.sendBroadcast("paddleResponse", lastRoom[1].sockets, responseData);
   }
 
   findDisconnectedUser(client: Socket): GameConnectedUserSocket | undefined {
