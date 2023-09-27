@@ -81,12 +81,12 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('ballLocation')
   async ballLocation(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-    let lastRoom: [number, GameRoomSocket];
+    let lastRoom: [number, GameRoomSocket] | undefined;
     this.gameRoomsSocket.forEach((value, key) => {
       lastRoom = [key, value];
     });
-    console.log("data " + data.x);
-    console.log("data " + data.y);
+    // console.log("data " + data.x);
+    // console.log("data " + data.y);
     let responseData = { message: 'Ball Location', data: data };
     this.sendBroadcast("ballLocationResponse", lastRoom[1].sockets, responseData)
     // console.log('data.x ' + data.x);
@@ -217,20 +217,26 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
 
   sendPaddleData(data:any): void{
     let lastRoom: [number, GameRoomSocket];
+    if (!data)
+      return;
+    if (!data.x || !data.y)
+      return;
     this.gameRoomsSocket.forEach((value, key) => {
       lastRoom = [key, value];
     });
     if (data.whoIs == 0){
+      console.log("whoisd0");
       this.paddleArray[0] = data;
     }
     if (data.whoIs == 1){
+      console.log("whoisd1");
       this.paddleArray[1] = data;
+      const serializeData = JSON.stringify(this.paddleArray);
+      let responseData = { message: 'Paddle', data: serializeData };
+      console.log("paddledata x" + data.x);
+      console.log("paddledata y" + data.y);
+      this.sendBroadcast("paddleResponse", lastRoom[1].sockets, responseData);
     }
-    const serializeData = JSON.stringify(data);
-    let responseData = { message: 'Paddle', data: serializeData };
-    console.log("paddledata x" + data.x);
-    console.log("paddledata y" + data.y);
-    this.sendBroadcast("paddleResponse", lastRoom[1].sockets, responseData);
   }
 
   findDisconnectedUser(client: Socket): GameConnectedUserSocket | undefined {
