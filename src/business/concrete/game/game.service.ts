@@ -35,7 +35,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService) {  }
 
   async handleDisconnect(client: Socket) {
     const disconnectedUser = this.findDisconnectedUser(client);
@@ -88,7 +88,10 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     // console.log("data " + data.x);
     // console.log("data " + data.y);
     let responseData = { message: 'Ball Location', data: data };
-    this.sendBroadcast("ballLocationResponse", lastRoom[1].sockets, responseData)
+    this.sendBroadcast("ballLocationResponse", lastRoom[1].sockets, responseData);
+
+    const nowDate = new Date();
+    const date = (new Date(lastRoom[1].startTime).getTime() + lastRoom[1].timer * 1000)- nowDate.getTime();
     // console.log('data.x ' + data.x);
     // console.log('data.y ' + data.y);
   }
@@ -155,7 +158,9 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
           userGuestId: lastRoom[1].userGuestId,
           userHostScore: lastRoom[1].userHostScore,
           userGuestScore: lastRoom[1].userGuestScore,
-          resultNameId: lastRoom[1].resultNameId
+          resultNameId: lastRoom[1].resultNameId,
+          startTime: lastRoom[1].startTime,
+          timer: lastRoom[1].timer,
         };
         const serializedGameBaseSocket = JSON.stringify(gameBaseSocketWithoutSockets);
         const responseData = { message: 'GameRoomSocketResponse Info', data: serializedGameBaseSocket };
@@ -192,6 +197,8 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       userGuestScore: 0,
       resultNameId: 0,
       sockets: sockets,
+      startTime: new Date(),
+      timer: 60,
     };
     sockets.push(gameConnectedUserSocket.socket);
     this.gameRoomsSocket.set(++this.nextRoomId, newGameRoom);
@@ -227,6 +234,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     if (data.whoIs == 0){
       console.log("whoisd0");
       this.paddleArray[0] = data;
+      console.log("paddledata socre0" + data.score);
     }
     if (data.whoIs == 1){
       console.log("whoisd1");
@@ -235,6 +243,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       let responseData = { message: 'Paddle', data: serializeData };
       console.log("paddledata x" + data.x);
       console.log("paddledata y" + data.y);
+      console.log("paddledata socre1" + data.score);
       this.sendBroadcast("paddleResponse", lastRoom[1].sockets, responseData);
     }
   }
