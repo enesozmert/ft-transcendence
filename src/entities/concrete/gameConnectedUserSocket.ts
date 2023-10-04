@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
 export class GameConnectedUserSocket {
-  nickName: string;
+  nameIdentifier: string;
   roomName: number;
   socket: Socket;
 }
