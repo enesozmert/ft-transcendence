@@ -42,10 +42,10 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (disconnectedUser) {
       const responseData = { message: 'true' };
-      disconnectedUser.socket.emit('gameDisconnected', responseData);
       this.userSocket.delete(disconnectedUser.nameIdentifier);
       this.connectedUserSocket.delete(disconnectedUser.nameIdentifier);
       this.gameRoomsSocket.delete(this.nextRoomId);
+      disconnectedUser.socket.emit('gameDisconnected', responseData);
       console.log('disconnect user');
     }
   }
@@ -85,12 +85,16 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     const disconnectedUser = this.findDisconnectedUser(socket);
 
     currentRoom = this.findCurrentRoom(socket);
+    if (currentRoom === undefined)
+      return;
     let responseData = { message: 'Ball Location', data: data };
     this.sendBroadcast("ballLocationResponse", currentRoom[1].sockets, responseData);
 
     const nowDate = new Date();
     const date = (new Date(currentRoom[1].startTime).getTime() + currentRoom[1].timer * 1000) - nowDate.getTime();
     if (date <= 0){
+      this.handleDisconnect(currentRoom[1].sockets[0]);
+      this.handleDisconnect(currentRoom[1].sockets[1]);
       this.connectedUserSocket.delete(String(currentRoom[1].userHostId));
       this.connectedUserSocket.delete(String(currentRoom[1].userGuestId));
     }
@@ -222,6 +226,8 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     if (!data.x || !data.y)
       return;
     currentRoom = this.findCurrentRoom(socket);
+    if (currentRoom === undefined)
+      return;
     if (data.whoIs == 0) {
       console.log("whoisd0");
       this.paddleArray[0] = data;
@@ -232,9 +238,9 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       this.paddleArray[1] = data;
       const serializeData = JSON.stringify(this.paddleArray);
       let responseData = { message: 'Paddle', data: serializeData };
-      console.log("paddledata x" + data.x);
-      console.log("paddledata y" + data.y);
-      console.log("paddledata socre1" + data.score);
+      // console.log("paddledata x" + data.x);
+      // console.log("paddledata y" + data.y);
+      // console.log("paddledata socre1" + data.score);
       this.sendBroadcast("paddleResponse", currentRoom[1].sockets, responseData);
     }
   }
