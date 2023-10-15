@@ -63,4 +63,46 @@ export class Messages {
   public static readonly GameScoreGetAll: string = 'GameScore Get All';
   public static readonly GameScoreGetById: string = 'GameScore Get By Id';
   public static readonly GameScoreNotFound: string = 'GameScore Not Found';
+
+  //Chat
+  public static readonly ChatRoomPropertyAdded: string = 'ChatRoomProperty Added';
+  public static readonly ChatRoomPropertyDeleted: string = 'ChatRoomProperty Deleted';
+  public static readonly ChatRoomPropertyUpdate: string = 'ChatRoomProperty Updated';
+  public static readonly ChatRoomPropertyGetAll: string = 'ChatRoomProperty Get All';
+  public static readonly ChatRoomPropertyGetById: string = 'ChatRoomProperty Get By Id';
+  public static readonly ChatRoomPropertyNotFound: string = 'ChatRoomProperty Not Found';
+
+  public static readonly ChatRoomTypeAdded: string = 'ChatRoomType Added';
+  public static readonly ChatRoomTypeDeleted: string = 'ChatRoomType Deleted';
+  public static readonly ChatRoomTypeUpdate: string = 'ChatRoomType Updated';
+  public static readonly ChatRoomTypeGetAll: string = 'ChatRoomType Get All';
+  public static readonly ChatRoomTypeGetById: string = 'ChatRoomType Get By Id';
+  public static readonly ChatRoomTypeNotFound: string = 'ChatRoomType Not Found';
+
+  public static readonly ChatRoomUserAdded: string = 'ChatRoomUser Added';
+  public static readonly ChatRoomUserDeleted: string = 'ChatRoomUser Deleted';
+  public static readonly ChatRoomUserUpdate: string = 'ChatRoomUser Updated';
+  public static readonly ChatRoomUserGetAll: string = 'ChatRoomUser Get All';
+  public static readonly ChatRoomUserGetById: string = 'ChatRoomUser Get By Id';
+  public static readonly ChatRoomUserNotFound: string = 'ChatRoomUser Not Found';
+
+  public static readonly ChatRoomUserPropertyAdded: string = 'ChatRoomUserProperty Added';
+  public static readonly ChatRoomUserPropertyDeleted: string = 'ChatRoomUserProperty Deleted';
+  public static readonly ChatRoomUserPropertyUpdate: string = 'ChatRoomUserProperty Updated';
+  public static readonly ChatRoomUserPropertyGetAll: string = 'ChatRoomUserProperty Get All';
+  public static readonly ChatRoomUserPropertyGetById: string = 'ChatRoomUserProperty Get By Id';
+  public static readonly ChatRoomUserPropertyNotFound: string = 'ChatRoomUserProperty Not Found';
+
+  public static readonly DirectMessageMatchAdded: string = 'DirectMessageMatch Added';
+  public static readonly DirectMessageMatchDeleted: string = 'DirectMessageMatch Deleted';
+  public static readonly DirectMessageMatchUpdate: string = 'DirectMessageMatch Updated';
+  public static readonly DirectMessageMatchGetAll: string = 'DirectMessageMatch Get All';
+  public static readonly DirectMessageMatchGetById: string = 'DirectMessageMatch Get By Id';
+  public static readonly DirectMessageMatchNotFound: string = 'DirectMessageMatch Not Found';
+  
+  public static readonly ChatRoomGetAll: string;
+  public static readonly ChatRoomGetById: string;
+  public static readonly ChatRoomAdded: string;
+  public static readonly ChatRoomNotFound: string;
+  public static readonly ChatRoomUpdate: string;
 }
