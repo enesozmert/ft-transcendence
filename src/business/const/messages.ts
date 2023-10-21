@@ -105,4 +105,5 @@ export class Messages {
   public static readonly ChatRoomAdded: string;
   public static readonly ChatRoomNotFound: string;
   public static readonly ChatRoomUpdate: string;
+    static GetRoomsByUserDto: string;
 }

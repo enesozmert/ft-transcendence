@@ -12,7 +12,7 @@ import { ChatRoomUser } from 'src/entities/concrete/chatRoomUser.entity';
 @Injectable()
 export class ChatRoomUserService {
     constructor(@InjectRepository(ChatRoomUser) private chatRoomUserDal: ChatRoomUserDal) {
-        
+
     }
 
     public async getAll(): Promise<IDataResult<ChatRoomUser[]>> {
@@ -47,5 +47,15 @@ export class ChatRoomUserService {
     public async delete(id: number): Promise<IResult> {
         await this.chatRoomUserDal.delete(id);
         return new SuccessResult(Messages.ChatRoomUserDeleted);
+    }
+
+    public async getUserIsHereByRoomId(chatRoomId: number, userId: number): Promise<IDataResult<boolean>> {
+        const count = await this.chatRoomUserDal.count({
+            where: { chatRoomId, userId },
+          });
+        return new SuccessDataResult<boolean>(
+            await count > 0,
+            Messages.ChatRoomUserGetAll,
+        );
     }
 }

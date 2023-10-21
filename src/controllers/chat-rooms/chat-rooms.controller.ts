@@ -60,4 +60,14 @@ export class ChatRoomsController {
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Get('/getroomsbyuserdto')
+    async getRoomsByUserDto(@Res() response: Response, @Req() request: Request) {
+        const result = await this.chatRoomService.getRoomsByUserDto();
+        
+        if (result.success) {
+          return response.status(HttpStatus.OK).send(await result);
+        }
+        return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
 }

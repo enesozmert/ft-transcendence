@@ -17,6 +17,9 @@ export class ChatRoom {
   @Column({ name: 'roomUserId' })
   roomUserId: number;
 
+  @Column({ name: 'userCount'})
+  userCount: number;
+
   @Column({ name: 'hasPassword', type: 'boolean' })
   hasPassword: boolean;
 
