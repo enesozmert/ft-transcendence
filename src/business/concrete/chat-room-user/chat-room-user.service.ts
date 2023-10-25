@@ -54,7 +54,7 @@ export class ChatRoomUserService {
             where: { chatRoomId, userId },
           });
         return new SuccessDataResult<boolean>(
-            await count > 0,
+            await count == 0,
             Messages.ChatRoomUserGetAll,
         );
     }
