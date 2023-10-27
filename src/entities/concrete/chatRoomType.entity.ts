@@ -8,6 +8,9 @@ export class ChatRoomType {
   @Column()
   name: string;
 
+  @Column()
+  description: string;
+
   @Column({ type: 'date' })
   updateTime: Date;
 
