@@ -167,7 +167,7 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
     @SubscribeMessage('chatRoomConnected')
     async chatRoomConnected(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
         let responseData = { message: 'Ball Location', data: data };
-        this.sendBroadcast("ballLocationResponse", socket, responseData);
+        // this.sendBroadcast("ballLocationResponse", socket, responseData);
     }
 
     @SubscribeMessage('chatRoomSendMessage')

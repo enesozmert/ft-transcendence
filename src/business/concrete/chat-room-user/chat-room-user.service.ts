@@ -17,6 +17,7 @@ import { User } from 'src/entities/concrete/user.entity';
 import { AccessToken } from 'src/core/utilities/security/jwt/accessToken';
 import { JwtHelper } from 'src/core/utilities/security/jwt/jwtHelper';
 import { ChatRoom } from 'src/entities/concrete/chatRoom.entity';
+import { ChatRoomUserByUserDto } from 'src/entities/dto/chatRoomUserByUserDto';
 
 @Injectable()
 export class ChatRoomUserService {
@@ -62,10 +63,29 @@ export class ChatRoomUserService {
         return new SuccessResult(Messages.ChatRoomUserDeleted);
     }
 
+    private async getChatRoomUsersByUserAndChatRoomId(chatRoomId): Promise<ChatRoomUserByUserDto[]> {
+        const queryBuilder = this.chatRoomUserDal
+            .createQueryBuilder('chatRoomUser')
+            .innerJoin(User, 'user', 'user.id = chatRoomUser.userId')
+            .select([
+                'chatRoomUser.id as "id"',
+                'chatRoomUser.chatRoomId as "chatRoomId"',
+                'chatRoomUser.userId as "userId"',
+                'user.nickName as "nickName"',
+                'chatRoomUser.updateTime as "updateTime"',
+                'chatRoomUser.status as "status"',
+            ])
+            .where('chatRoomUser.chatRoomId = :chatRoomId', { chatRoomId });
+
+        const chatRooms = await queryBuilder.getRawMany();
+
+        return chatRooms;
+    }
+
     public async getByAccessId(accessId: string): Promise<IDataResult<ChatRoomUser[]>> {
         let chatRoom: IDataResult<ChatRoom> = await this.chatRoomService.getByAccessId(accessId);
         return new SuccessDataResult<ChatRoomUser[]>(
-            await this.chatRoomUserDal.find({ where: { id: chatRoom.data.id } }),
+            await this.getChatRoomUsersByUserAndChatRoomId(chatRoom.data.id),
             Messages.ChatRoomUserGetByAccessId,
         );
     }
