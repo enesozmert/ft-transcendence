@@ -1,3 +1,8 @@
+import { ChatRoomService } from 'src/business/concrete/chat-room/chat-room.service';
+import { AuthService } from './../auth/auth.service';
+import { UserService } from './../user/user.service';
+import { ErrorDataResult } from './../../../core/utilities/result/concrete/dataResult/errorDataResult';
+import { BusinessRules } from './../../../core/utilities/business/businessRules';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from 'src/business/const/messages';
@@ -8,10 +13,15 @@ import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResu
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
 import { ChatRoomUserDal } from 'src/dataAccess/concrete/chatRoomUserDal';
 import { ChatRoomUser } from 'src/entities/concrete/chatRoomUser.entity';
+import { User } from 'src/entities/concrete/user.entity';
+import { AccessToken } from 'src/core/utilities/security/jwt/accessToken';
+import { JwtHelper } from 'src/core/utilities/security/jwt/jwtHelper';
+import { ChatRoom } from 'src/entities/concrete/chatRoom.entity';
 
 @Injectable()
 export class ChatRoomUserService {
-    constructor(@InjectRepository(ChatRoomUser) private chatRoomUserDal: ChatRoomUserDal) {
+    constructor(@InjectRepository(ChatRoomUser) private chatRoomUserDal: ChatRoomUserDal,
+        private chatRoomService: ChatRoomService) {
 
     }
 
@@ -29,9 +39,12 @@ export class ChatRoomUserService {
         );
     }
 
-    public async add(chatRoomUser: ChatRoomUser): Promise<IDataResult<ChatRoomUser>> {
-        const addedChatRoomUser = await this.chatRoomUserDal.save(chatRoomUser);
-        return new SuccessDataResult<ChatRoomUser>(addedChatRoomUser, Messages.ChatRoomUserAdded);
+    public async add(chatRoomUser: ChatRoomUser): Promise<IResult> {
+        let result = BusinessRules.run(await this.checkIfUserIsHereByRoomId(chatRoomUser.chatRoomId, chatRoomUser.userId));
+        if (result != null)
+            return result;
+        await this.chatRoomUserDal.save(chatRoomUser);
+        return new SuccessResult(Messages.ChatRoomUserAdded);
     }
 
     public async update(updatedChatRoomUser: ChatRoomUser): Promise<IResult> {
@@ -49,13 +62,21 @@ export class ChatRoomUserService {
         return new SuccessResult(Messages.ChatRoomUserDeleted);
     }
 
-    public async getUserIsHereByRoomId(chatRoomId: number, userId: number): Promise<IDataResult<boolean>> {
+    public async getByAccessId(accessId: string): Promise<IDataResult<ChatRoomUser[]>> {
+        let chatRoom: IDataResult<ChatRoom> = await this.chatRoomService.getByAccessId(accessId);
+        return new SuccessDataResult<ChatRoomUser[]>(
+            await this.chatRoomUserDal.find({ where: { id: chatRoom.data.id } }),
+            Messages.ChatRoomUserGetByAccessId,
+        );
+    }
+
+    //bussines rules
+    private async checkIfUserIsHereByRoomId(chatRoomId: number, userId: number): Promise<IResult> {
         const count = await this.chatRoomUserDal.count({
             where: { chatRoomId, userId },
-          });
-        return new SuccessDataResult<boolean>(
-            await count == 0,
-            Messages.ChatRoomUserGetAll,
-        );
+        });
+        if (count == 0)
+            return new SuccessResult();
+        return new ErrorResult(Messages.ChatRoomUserFound);
     }
 }

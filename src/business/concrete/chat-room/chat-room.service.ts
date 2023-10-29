@@ -1,3 +1,5 @@
+import { RandomHelper } from './../../../core/utilities/random/randomHelper';
+import { BusinessRules } from './../../../core/utilities/business/businessRules';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { chat } from 'googleapis/build/src/apis/chat';
@@ -59,9 +61,14 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         );
     }
 
-    public async add(chatRoom: ChatRoom): Promise<IDataResult<ChatRoom>> {
-        const addedChatRoom = await this.chatRoomDal.save(chatRoom);
-        return new SuccessDataResult<ChatRoom>(addedChatRoom, Messages.ChatRoomAdded);
+    public async add(chatRoom: ChatRoom): Promise<IResult> {
+        let accessId = RandomHelper.makeText(50);
+        let result = BusinessRules.run(await this.checkIfAccessId(accessId));
+        if (result != null)
+            this.add(chatRoom);
+        chatRoom.accessId = accessId;
+        await this.chatRoomDal.save(chatRoom);
+        return new SuccessResult(Messages.ChatRoomAdded);
     }
 
     public async update(updatedChatRoom: ChatRoom): Promise<IResult> {
@@ -79,7 +86,14 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         return new SuccessResult(Messages.ChatRoomAdded);
     }
 
-    async getChatRoomsByUser(): Promise<ChatRoomByUserDto[]> {
+    public async getByAccessId(accessId: string): Promise<IDataResult<ChatRoom>> {
+        return new SuccessDataResult<ChatRoom>(
+            await this.chatRoomDal.findOne({ where: { accessId: accessId } }),
+            Messages.ChatRoomGetByAccessId,
+        );
+    }
+
+    private async getChatRoomsByUser(): Promise<ChatRoomByUserDto[]> {
         const chatRooms = await this.chatRoomDal
             .createQueryBuilder('chatRoom')
             .innerJoin(User, 'user', 'user.id = chatRoom.roomUserId')
@@ -106,6 +120,14 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         return new SuccessDataResult<ChatRoomByUserDto[]>(result, Messages.GetRoomsByUserDto)
     }
 
+    //bussiness
+    private async checkIfAccessId(accessId: string): Promise<IResult> {
+        let roomsCount: number = await this.chatRoomDal.count({ where: { accessId: accessId } });
+        if (roomsCount == 0)
+            return new SuccessResult();
+        return new ErrorResult();
+    }
+
     //socket
 
     handleDisconnect(client: any) {
@@ -113,8 +135,8 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
 
         if (disconnectedUserSocket) {
             const responseData = { message: 'true' };
-            this.chatRoomModelSocket.delete(disconnectedUserSocket);
-            this.connectedChatRoomUserSocket.delete(disconnectedUserSocket);
+            this.chatRoomSockets.delete(disconnectedUserSocket);
+            this.connectedChatRoomUserSockets.delete(disconnectedUserSocket);
             //   disconnectedUser.socket.emit('gameDisconnected', responseData);
             console.log('disconnect user');
         }
@@ -187,13 +209,13 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         //   const element = sockets[index];
         //   element.emit(ev, responseData);
         // }
-        
+
         // const currentChatRoom: ChatRoomSocket | undefined = this.chatRoomSockets.get(targetSocket);
         // for (let index = 0; index < currentChatRoom.userSocketsIds.; index++) {
         //     // const element = array[index];
-            
+
         // } 
         // console.log(currentChatRoom);
-        
+
     }
 }

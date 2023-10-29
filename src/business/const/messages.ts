@@ -85,6 +85,7 @@ export class Messages {
   public static readonly ChatRoomUserGetAll: string = 'ChatRoomUser Get All';
   public static readonly ChatRoomUserGetById: string = 'ChatRoomUser Get By Id';
   public static readonly ChatRoomUserNotFound: string = 'ChatRoomUser Not Found';
+  public static readonly ChatRoomUserFound: string = 'ChatRoomUser Found';
 
   public static readonly ChatRoomUserPropertyAdded: string = 'ChatRoomUserProperty Added';
   public static readonly ChatRoomUserPropertyDeleted: string = 'ChatRoomUserProperty Deleted';
@@ -99,11 +100,13 @@ export class Messages {
   public static readonly DirectMessageMatchGetAll: string = 'DirectMessageMatch Get All';
   public static readonly DirectMessageMatchGetById: string = 'DirectMessageMatch Get By Id';
   public static readonly DirectMessageMatchNotFound: string = 'DirectMessageMatch Not Found';
-  
+
   public static readonly ChatRoomGetAll: string;
   public static readonly ChatRoomGetById: string;
   public static readonly ChatRoomAdded: string;
   public static readonly ChatRoomNotFound: string;
   public static readonly ChatRoomUpdate: string;
-    static GetRoomsByUserDto: string;
+  public static readonly GetRoomsByUserDto: string;
+  public static readonly ChatRoomGetByAccessId: string;
+  public static readonly ChatRoomUserGetByAccessId: string;
 }

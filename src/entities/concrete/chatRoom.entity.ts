@@ -9,7 +9,7 @@ export class ChatRoom {
   name: string;
 
   @Column({ name: 'accessId' })
-  accessId: number;
+  accessId: string;
 
   @Column({ name: 'roomTypeId' })
   roomTypeId: number;
