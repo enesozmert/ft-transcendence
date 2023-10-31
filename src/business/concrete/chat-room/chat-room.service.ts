@@ -37,7 +37,7 @@ import { Server, Socket } from 'socket.io';
 @Injectable()
 export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect {
     connectedChatRoomUserSockets = new Map<Socket, ChatRoomUserSocket>();//socket=>user
-    chatRoomSockets = new Map<Socket, ChatRoomSocket>();//socket=>user
+    chatRoomSockets = new Map<string, ChatRoomSocket>();//socket=>user
     chatRoomListSockets = new Map<Socket, ChatRoomListSocket>();//socker=>chatRoomSocket
 
     @WebSocketServer()
@@ -132,11 +132,12 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
 
     handleDisconnect(client: any) {
         const disconnectedUserSocket = this.findDisconnectedUser(client);
+        const findChatRoomSocket = this.findChatRoomSocket(client);
 
         if (disconnectedUserSocket) {
             const responseData = { message: 'true' };
-            this.chatRoomSockets.delete(disconnectedUserSocket);
-            this.connectedChatRoomUserSockets.delete(disconnectedUserSocket);
+            this.chatRoomSockets.delete(disconnectedUserSocket.chatRoomAccessId);
+            this.connectedChatRoomUserSockets.delete(findChatRoomSocket);
             //   disconnectedUser.socket.emit('gameDisconnected', responseData);
             console.log('disconnect user');
         }
@@ -159,32 +160,78 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
 
         this.connectedChatRoomUserSockets.set(client, {
             nickName: nickName.value,
-            socketId: client.id
+            chatRoomAccessId: "",
+            socketId: client.id,
         });
         return true;
     }
 
     @SubscribeMessage('chatRoomConnected')
-    async chatRoomConnected(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-        let responseData = { message: 'Ball Location', data: data };
-        // this.sendBroadcast("ballLocationResponse", socket, responseData);
+    async chatRoomConnected(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
+        let userSocketsIds: Map<Socket, ChatRoomUserSocket> = new Map<Socket, ChatRoomUserSocket>();
+        let chatRoomListSocket: ChatRoomListSocket;
+        let chatRoomSocket: ChatRoomSocket;
+        let connectedUserSocket: ChatRoomUserSocket;
+        let accessId;
+
+        connectedUserSocket = this.connectedChatRoomUserSockets.get(socket);
+        accessId = response.data;
+        connectedUserSocket.chatRoomAccessId = accessId;
+
+        if (!this.chatRoomSockets.has(accessId)) {
+            userSocketsIds.set(socket, connectedUserSocket);
+            chatRoomSocket = {
+                accessId: accessId,
+                userSocketsIds: userSocketsIds,
+            };
+            chatRoomSocket.accessId = accessId;
+            this.chatRoomSockets.set(accessId, chatRoomSocket);
+        } else {
+            let chatRoomSocketOld: ChatRoomSocket = this.chatRoomSockets.get(accessId);
+            if (!chatRoomSocketOld.userSocketsIds.has(socket)) {
+                chatRoomSocketOld.userSocketsIds.set(socket, connectedUserSocket);
+                this.chatRoomSockets.set(accessId, chatRoomSocketOld);
+            }
+        }
+
+        if (!this.chatRoomListSockets.has(accessId)) {
+            chatRoomListSocket = {
+                chatRoomSocketsIds: new Map<string, ChatRoomSocket>(),
+            };
+        } else {
+            chatRoomListSocket = this.chatRoomListSockets.get(accessId);
+        }
+
+        chatRoomListSocket.chatRoomSocketsIds.set(accessId, chatRoomSocket);
+        this.chatRoomListSockets.set(accessId, chatRoomListSocket);
     }
 
+
     @SubscribeMessage('chatRoomSendMessage')
-    async chatRoomSendMessage(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+    async chatRoomSendMessage(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
 
     }
 
     @SubscribeMessage('chatRoomHandleMessage')
-    async chatRoomHandleMessage(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-
+    async chatRoomHandleMessage(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
+        let responseData = { message: 'Message Text', data: response.messages };
+        this.sendBroadcast("messageResponse", this.chatRoomSockets.get(response.data.accessId).userSocketsIds[0], responseData);
     }
 
     //move-ex.
 
     //utils
 
-    findDisconnectedUser(client: Socket): Socket | undefined {
+    findDisconnectedUser(client: Socket): ChatRoomUserSocket | undefined {
+        for (const user of this.connectedChatRoomUserSockets.values()) {
+            if (user.socketId === client.id) {
+                return this.connectedChatRoomUserSockets.get(client);
+            }
+        }
+        return undefined;
+    }
+
+    findChatRoomSocket(client: Socket): Socket | undefined {
         for (const user of this.connectedChatRoomUserSockets.values()) {
             if (user.socketId === client.id) {
                 return client;
@@ -193,29 +240,12 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         return undefined;
     }
 
-    // findChatRoomSocket(socketId: string): Socket | undefined {
-    //     for (const user of this.chatRoomModelSocket.values()) {
-    //         if (user.chatRoomSocket.id === socketId) {
-    //             return user.chatRoomSocket;
-    //         }
-    //     }
-    //     return undefined;
-    // }
-
 
     //mapBroadcast
-    async sendBroadcast(ev: string, targetSocket: Socket, responseData: any) {
-        // for (let index = 0; index < sockets.size; index++) {
-        //   const element = sockets[index];
-        //   element.emit(ev, responseData);
-        // }
-
-        // const currentChatRoom: ChatRoomSocket | undefined = this.chatRoomSockets.get(targetSocket);
-        // for (let index = 0; index < currentChatRoom.userSocketsIds.; index++) {
-        //     // const element = array[index];
-
-        // } 
-        // console.log(currentChatRoom);
-
+    async sendBroadcast(ev: string, sockets: Array<Socket>, responseData: any) {
+        for (let index = 0; index < sockets.length; index++) {
+            const element = sockets[index];
+            element.emit(ev, responseData);
+        }
     }
 }
