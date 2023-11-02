@@ -161,14 +161,14 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         this.connectedChatRoomUserSockets.set(client, {
             nickName: nickName.value,
             chatRoomAccessId: "",
-            socketId: client.id,
+            socketId: client.id
         });
         return true;
     }
 
     @SubscribeMessage('chatRoomConnected')
     async chatRoomConnected(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
-        let userSocketsIds: Map<Socket, ChatRoomUserSocket> = new Map<Socket, ChatRoomUserSocket>();
+        let userSocketsIds: Map<Socket, ChatRoomUserSocket>;
         let chatRoomListSocket: ChatRoomListSocket;
         let chatRoomSocket: ChatRoomSocket;
         let connectedUserSocket: ChatRoomUserSocket;
@@ -179,10 +179,11 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         connectedUserSocket.chatRoomAccessId = accessId;
 
         if (!this.chatRoomSockets.has(accessId)) {
+            userSocketsIds = new Map<Socket, ChatRoomUserSocket>();
             userSocketsIds.set(socket, connectedUserSocket);
             chatRoomSocket = {
                 accessId: accessId,
-                userSocketsIds: userSocketsIds,
+                userSocketsIds: userSocketsIds
             };
             chatRoomSocket.accessId = accessId;
             this.chatRoomSockets.set(accessId, chatRoomSocket);
@@ -204,18 +205,20 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
 
         chatRoomListSocket.chatRoomSocketsIds.set(accessId, chatRoomSocket);
         this.chatRoomListSockets.set(accessId, chatRoomListSocket);
+        console.log("this.chatRoomSockets1 ", this.connectedChatRoomUserSockets.size);
+        
     }
 
 
-    @SubscribeMessage('chatRoomSendMessage')
-    async chatRoomSendMessage(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
+    @SubscribeMessage('chatRoomHangleMove')
+    async chatRoomHangleMove(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
 
     }
 
     @SubscribeMessage('chatRoomHandleMessage')
     async chatRoomHandleMessage(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
-        let responseData = { message: 'Message Text', data: response.messages };
-        this.sendBroadcast("messageResponse", this.chatRoomSockets.get(response.data.accessId).userSocketsIds[0], responseData);
+        let responseData = { message: 'Message Text', data: response.data.messages };
+        this.sendBroadcast("messageResponse", this.chatRoomSockets.get(response.data.accessId).userSocketsIds, responseData);
     }
 
     //move-ex.
@@ -242,9 +245,14 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
 
 
     //mapBroadcast
-    async sendBroadcast(ev: string, sockets: Array<Socket>, responseData: any) {
-        for (let index = 0; index < sockets.length; index++) {
-            const element = sockets[index];
+    async sendBroadcast(ev: string, sockets: Map<Socket, ChatRoomUserSocket>, responseData: any) {
+        // for (let index = 0; index < sockets.size; index++) {
+
+        // }
+        console.log("responseData " , responseData);
+        
+        for (const iterator of sockets) {
+            const element = iterator[0];
             element.emit(ev, responseData);
         }
     }
