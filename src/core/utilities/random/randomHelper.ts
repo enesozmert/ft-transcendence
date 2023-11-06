@@ -8,4 +8,14 @@ export class RandomHelper {
 
     return text;
   }
+
+  static makeNumbers(length: number): number{
+    let text = '';
+    const possible = '0123456789';
+
+    for (let i = 0; i < length; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return Number(text);
+  }
 }

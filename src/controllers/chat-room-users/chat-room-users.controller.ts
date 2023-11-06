@@ -61,11 +61,11 @@ export class ChatRoomUsersController {
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
 
-    @Get('/getuserisherebyroomid')
-    async getUserIsHereByRoomId(@Res() response: Response, @Req() request: Request) {
-      let query: any = request.query;
-        const result = await this.chatRoomUserService.getUserIsHereByRoomId(query.chatRoomId, query.userId);
-
+    @Get('/getbyaccessid')
+    async getByAccessId(@Res() response: Response, @Req() request: Request) {
+        let accessId: string = String(request.query.accessId);
+        const result = await this.chatRoomUserService.getByAccessId(accessId);
+        
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);
         }
