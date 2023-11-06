@@ -246,9 +246,6 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
 
     //mapBroadcast
     async sendBroadcast(ev: string, sockets: Map<Socket, ChatRoomUserSocket>, responseData: any) {
-        // for (let index = 0; index < sockets.size; index++) {
-
-        // }
         console.log("responseData " , responseData);
         
         for (const iterator of sockets) {
