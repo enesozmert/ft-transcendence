@@ -35,7 +35,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService) {}
 
   async handleDisconnect(client: Socket) {
     const disconnectedUser = this.findDisconnectedUser(client);
@@ -79,20 +79,34 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     this.sendPaddleData(data, socket);
   }
 
+  @SubscribeMessage('score')
+  async Score(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+    this.sendScoreData(data, socket);
+  }
+
   @SubscribeMessage('ballLocation')
-  async ballLocation(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+  async ballLocation(
+    @MessageBody() data: any,
+    @ConnectedSocket() socket: Socket,
+  ) {
     let currentRoom: [number, GameRoomSocket] | undefined;
     const disconnectedUser = this.findDisconnectedUser(socket);
 
     currentRoom = this.findCurrentRoom(socket);
-    if (currentRoom === undefined)
-      return;
+    if (currentRoom === undefined) return;
     let responseData = { message: 'Ball Location', data: data };
-    this.sendBroadcast("ballLocationResponse", currentRoom[1].sockets, responseData);
+    this.sendBroadcast(
+      'ballLocationResponse',
+      currentRoom[1].sockets,
+      responseData,
+    );
 
     const nowDate = new Date();
-    const date = (new Date(currentRoom[1].startTime).getTime() + currentRoom[1].timer * 1000) - nowDate.getTime();
-    if (date <= 0){
+    const date =
+      new Date(currentRoom[1].startTime).getTime() +
+      currentRoom[1].timer * 1000 -
+      nowDate.getTime();
+    if (date <= 0) {
       this.handleDisconnect(currentRoom[1].sockets[0]);
       this.handleDisconnect(currentRoom[1].sockets[1]);
       this.connectedUserSocket.delete(String(currentRoom[1].userHostId));
@@ -107,13 +121,14 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('gameRoomSocket')
-  async gameRoomSocket(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+  async gameRoomSocket(
+    @MessageBody() data: any,
+    @ConnectedSocket() socket: Socket,
+  ) {
     let lastRoom: [number, GameRoomSocket] | undefined;
     this.gameRoomsSocket.forEach((value, key) => {
       lastRoom = [key, value];
     });
-
-
   }
 
   @SubscribeMessage('matchmaking')
@@ -151,7 +166,11 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       responseData = { message: message, data: null };
       setTimeout(() => {
         responseData = { message: 'Matchmaking Finish', data: null };
-        this.sendMessageRoom('matchmakingResponse', lastRoom[1].sockets, responseData);
+        this.sendMessageRoom(
+          'matchmakingResponse',
+          lastRoom[1].sockets,
+          responseData,
+        );
         this.sendMessageRoom('gameRoomId', lastRoom[1].sockets, {
           message: String(lastRoom[0]),
         });
@@ -166,9 +185,18 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
           startTime: lastRoom[1].startTime,
           timer: lastRoom[1].timer,
         };
-        const serializedGameBaseSocket = JSON.stringify(gameBaseSocketWithoutSockets);
-        const responseData = { message: 'GameRoomSocketResponse Info', data: serializedGameBaseSocket };
-        this.sendMessageRoom('gameRoomSocketResponse', lastRoom[1].sockets, responseData);
+        const serializedGameBaseSocket = JSON.stringify(
+          gameBaseSocketWithoutSockets,
+        );
+        const responseData = {
+          message: 'GameRoomSocketResponse Info',
+          data: serializedGameBaseSocket,
+        };
+        this.sendMessageRoom(
+          'gameRoomSocketResponse',
+          lastRoom[1].sockets,
+          responseData,
+        );
       }
       console.log('joinRoomx');
     }
@@ -198,7 +226,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       resultNameId: 0,
       sockets: sockets,
       startTime: new Date(),
-      timer: 10,
+      timer: 60, //! GameDuration
     };
     sockets.push(gameConnectedUserSocket.socket);
     this.gameRoomsSocket.set(++this.nextRoomId, newGameRoom);
@@ -221,28 +249,40 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
   sendPaddleData(data: any, socket: Socket): void {
     let currentRoom: [number, GameRoomSocket] | undefined;
 
-    if (!data)
-      return;
-    if (!data.x || !data.y)
-      return;
+    if (!data) return;
+    if (!data.x || !data.y) return;
     currentRoom = this.findCurrentRoom(socket);
-    if (currentRoom === undefined)
-      return;
+    if (currentRoom === undefined) return;
     if (data.whoIs == 0) {
-      console.log("whoisd0");
       this.paddleArray[0] = data;
-      console.log("paddledata socre0" + data.score);
+      //   console.log('paddledata socre0' + data.score);
     }
     if (data.whoIs == 1) {
-      console.log("whoisd1");
       this.paddleArray[1] = data;
       const serializeData = JSON.stringify(this.paddleArray);
       let responseData = { message: 'Paddle', data: serializeData };
-      // console.log("paddledata x" + data.x);
-      // console.log("paddledata y" + data.y);
-      // console.log("paddledata socre1" + data.score);
-      this.sendBroadcast("paddleResponse", currentRoom[1].sockets, responseData);
+      this.sendBroadcast(
+        'paddleResponse',
+        currentRoom[1].sockets,
+        responseData,
+      );
     }
+  }
+
+  sendScoreData(data: any, socket: Socket): void {
+    let currentRoom: [number, GameRoomSocket] | undefined;
+    // console.log(data);
+
+    if (!data) return;
+    currentRoom = this.findCurrentRoom(socket);
+    if (currentRoom === undefined) return;
+
+    const serializeData = JSON.stringify({
+      host: data.host,
+      guest: data.guest,
+    });
+    let responseData = { message: 'score', data: serializeData };
+    this.sendBroadcast('scoreResponse', currentRoom[1].sockets, responseData);
   }
 
   findDisconnectedUser(client: Socket): GameConnectedUserSocket | undefined {
@@ -254,7 +294,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     return undefined;
   }
 
-  findCurrentRoom(socket: Socket): [number, GameRoomSocket] | undefined{
+  findCurrentRoom(socket: Socket): [number, GameRoomSocket] | undefined {
     let nameIdentifier: string;
     let nameIdentifierNumber: number;
     let currentRoom: [number, GameRoomSocket] | undefined;
@@ -266,7 +306,10 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     }
     nameIdentifierNumber = Number(nameIdentifier);
     for (const room of this.gameRoomsSocket) {
-      if (room[1].userHostId == nameIdentifierNumber || room[1].userGuestId == nameIdentifierNumber) {
+      if (
+        room[1].userHostId == nameIdentifierNumber ||
+        room[1].userGuestId == nameIdentifierNumber
+      ) {
         currentRoom = room;
       }
     }
