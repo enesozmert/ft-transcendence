@@ -1,16 +1,15 @@
-import { GameHistory } from '../../entities/concrete/gameHistory.entity';
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req, Res } from '@nestjs/common';
-import { GameHistoryService } from 'src/business/concrete/game-history/game-history.service';
+import { OperationClaimService } from 'src/business/concrete/operation-claim/operation-claim.service';
+import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity';
 import { Request, Response } from 'express';
 
-@Controller('api/game-histories')
-export class GameHistoriesController {
-
-    constructor(private gameHistoryService: GameHistoryService) { }
+@Controller('operation-claims')
+export class OperationClaimsController {
+    constructor(private operationClaimService: OperationClaimService) { }
 
     @Get('/getall')
     async getAll(@Res() response: Response, @Req() request: Request) {
-        const result = await this.gameHistoryService.getAll();
+        const result = await this.operationClaimService.getAll();
         
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);
@@ -21,7 +20,7 @@ export class GameHistoriesController {
     @Get('/getbyid')
     async getById(@Res() response: Response, @Req() request: Request) {
         let id: number = Number(request.query);
-        const result = await this.gameHistoryService.getById(id);
+        const result = await this.operationClaimService.getById(id);
         
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);
@@ -31,8 +30,8 @@ export class GameHistoriesController {
 
     @Post('/update')
     async update(@Res() response: Response, @Req() request: Request) {
-      let gameHistory: GameHistory = request.body;
-      const result = await this.gameHistoryService.update(gameHistory);
+      let operationClaim: OperationClaim = request.body;
+      const result = await this.operationClaimService.update(operationClaim);
       
       if (result.success) {
         return response.status(HttpStatus.OK).send(await result);
@@ -43,7 +42,7 @@ export class GameHistoriesController {
     @Get('/delete')
     async delete(@Res() response: Response, @Req() request: Request) {
         let id: number = Number(request.params);
-        const result = await this.gameHistoryService.delete(id);
+        const result = await this.operationClaimService.delete(id);
         
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);
@@ -53,19 +52,8 @@ export class GameHistoriesController {
 
     @Post('/add')
     async add(@Res() response: Response, @Req() request: Request) {
-        let gameHistory: GameHistory = request.body;
-        const result = await this.gameHistoryService.add(gameHistory);
-        
-        if (result.success) {
-          return response.status(HttpStatus.OK).send(await result);
-        }
-        return response.status(HttpStatus.BAD_REQUEST).send(await result);
-    }
-
-    @Get('/getbyuserid')
-    async getByUserId(@Res() response: Response, @Req() request: Request) {
-        let userId: number = Number(request.query.userId);
-        const result = await this.gameHistoryService.getByUserId(userId);
+        let operationClaim: OperationClaim = request.body;
+        const result = await this.operationClaimService.add(operationClaim);
         
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);

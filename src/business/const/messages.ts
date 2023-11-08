@@ -109,4 +109,16 @@ export class Messages {
   public static readonly GetRoomsByUserDto: string;
   public static readonly ChatRoomGetByAccessId: string;
   public static readonly ChatRoomUserGetByAccessId: string;
+  static OperationClaimGetAll: string;
+  static OperationClaimGetById: string;
+  static OperationClaimAdded: string;
+  static OperationClaimNotFound: string;
+  static OperationClaimUpdate: string;
+  static OperationClaimDeleted: string;
+  static UserOperationClaimGetAll: string;
+  static UserOperationClaimGetById: string;
+  static UserOperationClaimAdded: string;
+  static UserOperationClaimNotFound: string;
+  static UserOperationClaimUpdate: string;
+  static UserOperationClaimDeleted: string;
 }

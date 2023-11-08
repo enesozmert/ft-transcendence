@@ -50,4 +50,11 @@ export class GameHistoryService {
 		await this.gameHistoryDal.delete(id);
 		return new SuccessResult(Messages.GameHistoryDeleted);
 	}
+
+	public async getByUserId(userId: number) : Promise<IDataResult<GameHistory[]>>{
+		return new SuccessDataResult<GameHistory[]>(
+			await this.gameHistoryDal.find({ where: { userHostId: userId, userGuestId: userId } }),
+			Messages.GameHistoryGetAll,
+		);
+	}
 }
