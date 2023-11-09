@@ -8,6 +8,8 @@ import { Messages } from 'src/business/const/messages';
 import { IResult } from 'src/core/utilities/result/abstract/iResult';
 import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
+import { GameHistoryDto } from 'src/entities/dto/GameHistoryDto';
+import { User } from 'src/entities/concrete/user.entity';
 
 @Injectable()
 export class GameHistoryService {
@@ -57,4 +59,30 @@ export class GameHistoryService {
 			Messages.GameHistoryGetAll,
 		);
 	}
+
+	public async getByUserIdGameHistoryDto(userId: number) : Promise<IDataResult<GameHistoryDto[]>>{
+        return new SuccessDataResult<GameHistoryDto[]>(
+            await this.getHistoryDto(userId),
+            Messages.ChatRoomUserGetByAccessId,
+        );
+	}
+
+	private async getHistoryDto(userId: number): Promise<GameHistoryDto[]> {
+        const queryBuilder = this.gameHistoryDal
+            .createQueryBuilder('gameHistory')
+            .innerJoin(User, 'user', 'user.id = gameHistory.userHostId')
+            .innerJoin(User, 'user2', 'user2.id = gameHistory.userGuestId')
+            .select([
+                'gameHistory.id as "id"',
+                'user.nickName as "userHostNickName"',
+                'user2.nickName as "userGuestNickName"',
+                'gameHistory.finishDate as "finishDate"',
+                'gameHistory.updateTime as "updateTime"',
+                'gameHistory.status as "status"',
+            ])
+
+        const gameHistoryDto = await queryBuilder.getRawMany();
+
+        return gameHistoryDto;
+    }
 }

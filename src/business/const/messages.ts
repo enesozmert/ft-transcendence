@@ -121,4 +121,5 @@ export class Messages {
   static UserOperationClaimNotFound: string;
   static UserOperationClaimUpdate: string;
   static UserOperationClaimDeleted: string;
+	static GameScoreGetByUserIdGameScoreDto: string;
 }

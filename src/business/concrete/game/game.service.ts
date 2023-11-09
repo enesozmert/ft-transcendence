@@ -226,7 +226,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       resultNameId: 0,
       sockets: sockets,
       startTime: new Date(),
-      timer: 60, //! GameDuration
+      timer: 10, //! GameDuration
     };
     sockets.push(gameConnectedUserSocket.socket);
     this.gameRoomsSocket.set(++this.nextRoomId, newGameRoom);

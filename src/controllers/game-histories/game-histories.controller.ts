@@ -72,4 +72,15 @@ export class GameHistoriesController {
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Get('/getbyuseridgamehistorydto')
+    async getByUserIdGameHistoryDto(@Res() response: Response, @Req() request: Request) {
+        let userId: number = Number(request.query.userId);
+        const result = await this.gameHistoryService.getByUserIdGameHistoryDto(userId);
+        
+        if (result.success) {
+          return response.status(HttpStatus.OK).send(await result);
+        }
+        return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
 }
