@@ -215,13 +215,19 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         this.sendBroadcast("messageResponse", this.chatRoomSockets.get(response.data.accessId).userSocketsIds, responseData);
     }
 
+    @SubscribeMessage('chatRoomHandleOperations')
+    async chatRoomHandleOperations(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
+        let responseData = { message: 'Message Text', data: response.data.operations };
+        this.sendBroadcast("operationResponse", this.chatRoomSockets.get(response.data.accessId).userSocketsIds, responseData);
+    }
+
     @SubscribeMessage('chatRoomHandlePlayer')
     async chatRoomHangleMove(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
         let responseData = { message: 'Player', data: response.data.playerTotalArray };
         this.sendBroadcast("playerResponse", this.chatRoomSockets.get(response.data.accessId).userSocketsIds, responseData);
     }
 
-    //move-ex.
+    //move-ex
 
     //utils
 
