@@ -70,4 +70,15 @@ export class ChatRoomsController {
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Get('/getbyaccessid')
+    async getByAccessId(@Res() response: Response, @Req() request: Request) {
+        let accessId: string = String(request.query.accessId);
+        const result = await this.chatRoomService.getByAccessId(accessId);
+        
+        if (result.success) {
+          return response.status(HttpStatus.OK).send(await result);
+        }
+        return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
 }
