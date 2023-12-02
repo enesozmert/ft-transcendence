@@ -19,7 +19,7 @@ export class ChatRoomsController {
 
     @Get('/getbyid')
     async getById(@Res() response: Response, @Req() request: Request) {
-        let id: number = Number(request.query);
+        let id: number = Number(request.query.id);
         const result = await this.chatRoomService.getById(id);
         
         if (result.success) {
