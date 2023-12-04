@@ -23,6 +23,12 @@ export class ChatRoom {
   @Column({ name: 'hasPassword', type: 'boolean' })
   hasPassword: boolean;
 
+  @Column({ type: 'bytea', nullable: true })
+  passwordhash: Buffer;
+
+  @Column({ type: 'bytea', nullable: true })
+  passwordsalt: Buffer;
+
   @Column({ type: 'date' })
   updateTime: Date;
 
