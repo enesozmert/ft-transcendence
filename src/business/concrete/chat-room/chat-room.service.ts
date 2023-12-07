@@ -1,8 +1,8 @@
+import { UserService } from './../user/user.service';
 import { RandomHelper } from './../../../core/utilities/random/randomHelper';
 import { BusinessRules } from './../../../core/utilities/business/businessRules';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { chat } from 'googleapis/build/src/apis/chat';
 import { Messages } from 'src/business/const/messages';
 import { IDataResult } from 'src/core/utilities/result/abstract/iDataResult';
 import { IResult } from 'src/core/utilities/result/abstract/iResult';
@@ -27,6 +27,8 @@ import {
     WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity';
+import { OperationClaimDal } from 'src/dataAccess/concrete/operationClaimDal';
 
 @WebSocketGateway({
     cors: {
@@ -43,7 +45,9 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
     @WebSocketServer()
     server: Server;
 
-    constructor(@InjectRepository(ChatRoom) private chatRoomDal: ChatRoomDal) {
+    constructor(@InjectRepository(ChatRoom) private chatRoomDal: ChatRoomDal,
+        @InjectRepository(OperationClaim) private operationClaimDal: OperationClaimDal,
+        private userService: UserService) {
 
     }
 
@@ -118,6 +122,26 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
     public async getRoomsByUserDto(): Promise<IDataResult<ChatRoomByUserDto[]>> {
         const result = await this.getChatRoomsByUser();
         return new SuccessDataResult<ChatRoomByUserDto[]>(result, Messages.GetRoomsByUserDto)
+    }
+
+    public async getClaims(userId: number): Promise<IDataResult<OperationClaim[]>> {
+        const user = await this.userService.getById(userId);
+        const result = await this.operationClaimDal
+            .createQueryBuilder('operationClaim')
+            .innerJoin(
+                'operationClaim.userOperationClaims',
+                'userOperationClaim',
+                'userOperationClaim.userId = :userId',
+                { userId: user.data.id },
+            )
+            .select([
+                'operationClaim.id',
+                'operationClaim.name',
+                'operationClaim.explanation',
+                'operationClaim.description',
+            ])
+            .getMany();
+        return new SuccessDataResult<OperationClaim[]>(result, Messages.UserGetClaims);
     }
 
     //bussiness
@@ -206,7 +230,7 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
         chatRoomListSocket.chatRoomSocketsIds.set(accessId, chatRoomSocket);
         this.chatRoomListSockets.set(accessId, chatRoomListSocket);
         console.log("this.chatRoomSockets1 ", this.connectedChatRoomUserSockets.size);
-        
+
     }
 
     @SubscribeMessage('chatRoomHandleMessage')
@@ -252,8 +276,8 @@ export class ChatRoomService implements OnGatewayConnection, OnGatewayDisconnect
 
     //mapBroadcast
     async sendBroadcast(ev: string, sockets: Map<Socket, ChatRoomUserSocket>, responseData: any) {
-        console.log("responseData " , responseData);
-        
+        console.log("responseData ", responseData);
+
         for (const iterator of sockets) {
             const element = iterator[0];
             element.emit(ev, responseData);

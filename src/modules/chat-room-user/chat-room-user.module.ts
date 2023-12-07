@@ -6,11 +6,16 @@ import { ChatRoomUsersController } from 'src/controllers/chat-room-users/chat-ro
 import { ChatRoomUser } from 'src/entities/concrete/chatRoomUser.entity';
 import { ChatRoomDal } from 'src/dataAccess/concrete/chatRoomDal';
 import { ChatRoom } from 'src/entities/concrete/chatRoom.entity';
+import { OperationClaimDal } from 'src/dataAccess/concrete/operationClaimDal';
+import { OperationClaim } from 'src/core/entities/concrete/operationClaim.entity';
+import { UserService } from 'src/business/concrete/user/user.service';
+import { UserDal } from 'src/dataAccess/concrete/userDal';
+import { User } from 'src/entities/concrete/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ChatRoomUser]), TypeOrmModule.forFeature([ChatRoom])],
+  imports: [TypeOrmModule.forFeature([ChatRoomUser]), TypeOrmModule.forFeature([ChatRoom]), TypeOrmModule.forFeature([OperationClaim]), TypeOrmModule.forFeature([User])],
   controllers: [ChatRoomUsersController],
-  providers: [ChatRoomUserService, ChatRoomService, ChatRoomDal],
-  exports: [TypeOrmModule, ChatRoomUserService, ChatRoomService, ChatRoomDal],
+  providers: [ChatRoomUserService, ChatRoomService, ChatRoomDal, OperationClaimDal, UserService, UserDal],
+  exports: [TypeOrmModule, ChatRoomUserService, ChatRoomService, ChatRoomDal, UserService],
 })
 export class ChatRoomUserModule { }

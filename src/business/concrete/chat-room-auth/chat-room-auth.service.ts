@@ -1,3 +1,4 @@
+import { UserService } from './../user/user.service';
 import { ChatRoomForLoginDto } from '../../../entities/dto/chatRoomForLoginDto';
 import { ChatRoomService } from 'src/business/concrete/chat-room/chat-room.service';
 import { Injectable } from '@nestjs/common';
@@ -10,10 +11,13 @@ import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/e
 import { Messages } from 'src/business/const/messages';
 import { SuccessDataResult } from 'src/core/utilities/result/concrete/dataResult/successDataResult';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entities/concrete/user.entity';
+import { AccessToken } from 'src/core/utilities/security/jwt/accessToken';
 
 @Injectable()
 export class ChatRoomAuthService {
     constructor(private chatRoomService: ChatRoomService,
+		private userService: UserService,
         private readonly hashingHelper: HashingHelper,
         private readonly tokenHelper: JwtHelper,
     ) {
@@ -70,16 +74,17 @@ export class ChatRoomAuthService {
 		return new SuccessDataResult<ChatRoom>(chatRoomToCheck, Messages.SuccessfulLogin);
 	}
 
-    // public async createAccessToken(
-	// 	user: User,
-	// ): Promise<IDataResult<AccessToken>> {
-	// 	const claims = this.userService.getClaims(user);
-	// 	const accessToken = this.tokenHelper.createToken(user, (await claims).data);
-	// 	return new SuccessDataResult<AccessToken>(
-	// 		accessToken,
-	// 		Messages.AccessTokenCreated,
-	// 	);
-	// }
+    public async createAccessToken(
+		chatRoom: ChatRoom,
+	): Promise<IDataResult<AccessToken>> {
+		const claims = this.chatRoomService.getClaims(chatRoom.roomUserId);
+		const user = this.userService.getById(chatRoom.roomUserId);
+		const accessToken = this.tokenHelper.createToken((await user).data, (await claims).data);
+		return new SuccessDataResult<AccessToken>(
+			accessToken,
+			Messages.AccessTokenCreated,
+		);
+	}
 
 	// public async userExists(
 	// 	userForRegisterDto: UserForRegisterDto,

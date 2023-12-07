@@ -20,6 +20,8 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth/auth.module';
 import * as path from 'path';
 import { ChatRoomModule } from './modules/chat-room/chat-room.module';
+import { ChatRoomAuthModule } from './modules/chat-room-auth/chat-room-auth.module';
+import { UserInfoModule } from './modules/user-info/user-info.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
 @Module({
@@ -27,6 +29,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     ConfigModule.forRoot({ envFilePath:envFilePath, isGlobal: true }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     UserModule,
+    UserInfoModule,
     AuthModule,
     Auth42Module,
     AuthGoogleModule,
@@ -35,6 +38,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     GameResultNameModule,
     GameModule,
     ChatRoomModule,
+    ChatRoomAuthModule,
     ChatRoomPropertyModule,
     ChatRoomTypeModule,
     ChatRoomUserModule,

@@ -121,5 +121,9 @@ export class Messages {
   static UserOperationClaimNotFound: string;
   static UserOperationClaimUpdate: string;
   static UserOperationClaimDeleted: string;
-	static GameScoreGetByUserIdGameScoreDto: string;
+  static GameScoreGetByUserIdGameScoreDto: string;
+  public static readonly UserInfoGetAll: string;
+  public static readonly UserInfoGetById: string;
+  public static readonly UserInfoAdded: string;
+  public static readonly UserInfoNotFound: any;
 }
