@@ -60,4 +60,15 @@ export class UserInfosController {
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Get('/getbynickname')
+    async getByNickName(@Res() response: Response, @Req() request: Request) {
+      let userNickName: string = String(request.query.nickname);
+      const result = await this.userInfoService.getByNickName(userNickName);
+  
+      if (result.success) {
+        return response.status(HttpStatus.OK).send(await result);
+      }
+      return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
 }

@@ -1,3 +1,4 @@
+import { UserService } from './../user/user.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from 'src/business/const/messages';
@@ -11,7 +12,7 @@ import { UserInfo } from 'src/entities/concrete/userInfo.entity';
 
 @Injectable()
 export class UserInfoService {
-    constructor(@InjectRepository(UserInfo) private userInfoDal: UserInfoDal) {
+    constructor(@InjectRepository(UserInfo) private userInfoDal: UserInfoDal, private userService: UserService) {
         
     }
 
@@ -48,4 +49,13 @@ export class UserInfoService {
         await this.userInfoDal.delete(id);
         return new SuccessResult(Messages.UserInfoAdded);
     }
+
+    public async getByNickName(nickName: string): Promise<IDataResult<UserInfo>> {
+        const user = await this.userService.getByNickName(nickName);
+		return await new SuccessDataResult<UserInfo>(
+			await this.userInfoDal.findOne({ where: { userId: user.data.id } }),
+			Messages.UserInfoGetByNickName,
+		);
+	}
+
 }

@@ -1,3 +1,5 @@
+import { UserModule } from './../user/user.module';
+import { UserService } from './../../business/concrete/user/user.service';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatRoomTypeService } from 'src/business/concrete/chat-room-type/chat-room-type.service';
@@ -8,9 +10,9 @@ import { ChatRoomType } from 'src/entities/concrete/chatRoomType.entity';
 import { UserInfo } from 'src/entities/concrete/userInfo.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserInfo])],
+  imports: [TypeOrmModule.forFeature([UserInfo]), UserModule],
   controllers: [UserInfosController],
-  providers: [UserInfoService],
-  exports: [TypeOrmModule, UserInfoService],
+  providers: [UserInfoService, UserService],
+  exports: [TypeOrmModule, UserInfoService, UserService],
 })
 export class UserInfoModule {}
