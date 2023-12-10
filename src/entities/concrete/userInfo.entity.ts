@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity('UserInfos')
+@Entity('userInfos')
 export class UserInfo {
   @PrimaryGeneratedColumn()
   id: number;
@@ -9,7 +9,7 @@ export class UserInfo {
   @Column()
   userId: number;
 
-  @Column()
+  @Column({ nullable: true })
   loginDate: Date;
 
   @Column()

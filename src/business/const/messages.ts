@@ -127,4 +127,5 @@ export class Messages {
   public static readonly UserInfoAdded: string;
   public static readonly UserInfoNotFound: any;
   public static readonly UserInfoGetByNickName: string;
+  public static readonly UserInfoUploadProfileImage: string;
 }

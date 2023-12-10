@@ -1,3 +1,5 @@
+import { Inject, Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import { IFormFileProp } from "../../abstract/iFormFileProp";
 import { IImageSaveBase } from "../../abstract/iImageSaveBase";
 

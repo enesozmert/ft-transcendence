@@ -1,3 +1,4 @@
+import { FormFileProp } from './../../../core/utilities/file/concrete/prop/formFileProp';
 import { UserService } from './../user/user.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,11 +10,13 @@ import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResu
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
 import { UserInfoDal } from 'src/dataAccess/concrete/userInfoDal';
 import { UserInfo } from 'src/entities/concrete/userInfo.entity';
+import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/errorDataResult';
+import { FormFileImageSave } from 'src/core/utilities/file/concrete/formFileImageSave';
 
 @Injectable()
 export class UserInfoService {
-    constructor(@InjectRepository(UserInfo) private userInfoDal: UserInfoDal, private userService: UserService) {
-        
+    constructor(@InjectRepository(UserInfo) private userInfoDal: UserInfoDal, private userService: UserService, private formFileImageSave: FormFileImageSave) {
+
     }
 
     public async getAll(): Promise<IDataResult<UserInfo[]>> {
@@ -51,11 +54,17 @@ export class UserInfoService {
     }
 
     public async getByNickName(nickName: string): Promise<IDataResult<UserInfo>> {
-        const user = await this.userService.getByNickName(nickName);
-		return await new SuccessDataResult<UserInfo>(
-			await this.userInfoDal.findOne({ where: { userId: user.data.id } }),
-			Messages.UserInfoGetByNickName,
-		);
-	}
-
+        const user = await (await this.userService.getByNickName(nickName)).data;
+        const userInfo = await this.userInfoDal.findOne({ where: { userId: user.id } });
+        return new SuccessDataResult<UserInfo>(
+            userInfo,
+            Messages.UserInfoGetByNickName,
+        );
+    }
+    public async uploadProfileImage(nickName: string, file: Express.Multer.File): Promise<IResult> {
+        let userInfo = await (await this.getByNickName(nickName)).data;
+        userInfo.profileImagePath = file.filename;
+        this.update(userInfo);
+        return await new SuccessResult(Messages.UserInfoUploadProfileImage);
+    }
 }

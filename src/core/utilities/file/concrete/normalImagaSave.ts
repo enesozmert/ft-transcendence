@@ -3,6 +3,8 @@ import * as path from 'path';
 
 import { IFormFileProp } from "../abstract/iFormFileProp";
 import { ImageSaveBase } from "./base/imageSaveBase";
+import { GetExtension } from "./utils/getExtension";
+import { GetFileName } from "./utils/getFileName";
 
 class NormalImageSave implements ImageSaveBase {
     public save(formFileProp: IFormFileProp): string[] {

@@ -1,6 +1,6 @@
 export interface FormFileProp {
-    formFiles: File[];
-    formFile: File;
+    formFiles: Express.Multer.File[];
+    formFile: Express.Multer.File;
     name: string;
     oldPath: string;
     newPath: string;

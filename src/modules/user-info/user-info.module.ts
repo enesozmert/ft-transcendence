@@ -8,11 +8,15 @@ import { ChatRoomTypesController } from 'src/controllers/chat-room-types/chat-ro
 import { UserInfosController } from 'src/controllers/user-infos/user-infos.controller';
 import { ChatRoomType } from 'src/entities/concrete/chatRoomType.entity';
 import { UserInfo } from 'src/entities/concrete/userInfo.entity';
+import { MulterModule } from '@nestjs/platform-express';
+import { FormFileImageSave } from 'src/core/utilities/file/concrete/formFileImageSave';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserInfo]), UserModule],
+  imports: [TypeOrmModule.forFeature([UserInfo]), UserModule, MulterModule.register({
+    dest: './uploads/profile-images',
+  }),],
   controllers: [UserInfosController],
-  providers: [UserInfoService, UserService],
+  providers: [UserInfoService, UserService, FormFileImageSave],
   exports: [TypeOrmModule, UserInfoService, UserService],
 })
-export class UserInfoModule {}
+export class UserInfoModule { }

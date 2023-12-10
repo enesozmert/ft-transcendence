@@ -1,3 +1,4 @@
+import { UserInfo } from './../../../entities/concrete/userInfo.entity';
 import { UserForLoginDto } from './../../../entities/dto/userForLoginDto';
 import { Injectable } from '@nestjs/common';
 import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/errorDataResult';

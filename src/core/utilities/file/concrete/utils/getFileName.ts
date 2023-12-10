@@ -1,4 +1,4 @@
-function GetFileName(path: string): string {
+export function GetFileName(path: string): string {
     const pathParts = path.split(/[\\/]/);
     const fileName = pathParts[pathParts.length - 1];
     const dotIndex = fileName.lastIndexOf('.');

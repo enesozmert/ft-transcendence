@@ -1,4 +1,8 @@
+import { GenerateGuid } from "../../guid/generateGuid";
 import { IFileUtilities } from "../abstract/iFileUtilities";
+
+import { GetExtension } from "./utils/getExtension";
+import { GetFileName } from "./utils/getFileName";
 
 export class FileUtilities implements IFileUtilities {
     fileExtension(path: string): string {
