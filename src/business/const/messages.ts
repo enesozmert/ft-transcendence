@@ -106,26 +106,39 @@ export class Messages {
   public static readonly ChatRoomAdded: string;
   public static readonly ChatRoomNotFound: string;
   public static readonly ChatRoomUpdate: string;
+
   public static readonly GetRoomsByUserDto: string;
+
   public static readonly ChatRoomGetByAccessId: string;
   public static readonly ChatRoomUserGetByAccessId: string;
+
   public static readonly OperationClaimGetAll: string;
   public static readonly OperationClaimGetById: string;
   public static readonly OperationClaimAdded: string;
   public static readonly OperationClaimNotFound: string;
   public static readonly OperationClaimUpdate: string;
   public static readonly OperationClaimDeleted: string;
+
   public static readonly UserOperationClaimGetAll: string;
   public static readonly UserOperationClaimGetById: string;
   public static readonly UserOperationClaimAdded: string;
   public static readonly UserOperationClaimNotFound: string;
-  public static readonly  UserOperationClaimUpdate: string;
+  public static readonly UserOperationClaimUpdate: string;
   public static readonly UserOperationClaimDeleted: string;
+
   public static readonly GameScoreGetByUserIdGameScoreDto: string;
+
   public static readonly UserInfoGetAll: string;
   public static readonly UserInfoGetById: string;
   public static readonly UserInfoAdded: string;
   public static readonly UserInfoNotFound: any;
   public static readonly UserInfoGetByNickName: string;
   public static readonly UserInfoUploadProfileImage: string;
+
+  public static readonly GameTotalScoreGetAll: string;
+  public static readonly GameTotalScoreGetById: string;
+  public static readonly GameTotalScoreAdded: string;
+  public static readonly GameTotalScoreNotFound: string;
+  public static readonly GameTotalScoreUpdate: string;
+  public static readonly GameTotalScoreDeleted: string;
 }
