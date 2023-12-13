@@ -1,14 +1,15 @@
+import { TwoFatypeService } from 'src/business/concrete/two-fatype/two-fatype.service';
 import { Request, Response } from 'express';
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req, Res } from '@nestjs/common';
-import { GameTotalScoreService } from 'src/business/concrete/game-total-score/game-total-score.service';
-import { GameTotalScore } from 'src/entities/concrete/gameTotalScore.entity';
+import { TwoFAType } from 'src/entities/concrete/towFAType.entity';
 
-@Controller('api/game-total-scories')
-export class GameTotalScoriesController {
-    constructor(private gameTotalScoreService: GameTotalScoreService) { }
+@Controller('two-fatypes')
+export class TwoFatypesController {
+    constructor(private twoFatypeService: TwoFatypeService) { }
+
     @Get('/getall')
     async getAll(@Res() response: Response, @Req() request: Request) {
-        const result = await this.gameTotalScoreService.getAll();
+        const result = await this.twoFatypeService.getAll();
         
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);
@@ -19,7 +20,7 @@ export class GameTotalScoriesController {
     @Get('/getbyid')
     async getById(@Res() response: Response, @Req() request: Request) {
         let id: number = Number(request.query);
-        const result = await this.gameTotalScoreService.getById(id);
+        const result = await this.twoFatypeService.getById(id);
         
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);
@@ -29,8 +30,8 @@ export class GameTotalScoriesController {
 
     @Post('/update')
     async update(@Res() response: Response, @Req() request: Request) {
-      let gameTotalScore: GameTotalScore = request.body;
-      const result = await this.gameTotalScoreService.update(gameTotalScore);
+      let twoFAType: TwoFAType = request.body;
+      const result = await this.twoFatypeService.update(twoFAType);
       
       if (result.success) {
         return response.status(HttpStatus.OK).send(await result);
@@ -41,7 +42,7 @@ export class GameTotalScoriesController {
     @Get('/delete')
     async delete(@Res() response: Response, @Req() request: Request) {
         let id: number = Number(request.params);
-        const result = await this.gameTotalScoreService.delete(id);
+        const result = await this.twoFatypeService.delete(id);
         
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);
@@ -51,23 +52,12 @@ export class GameTotalScoriesController {
 
     @Post('/add')
     async add(@Res() response: Response, @Req() request: Request) {
-        let gameTotalScore: GameTotalScore = request.body;
-        const result = await this.gameTotalScoreService.add(gameTotalScore);
+        let gameScore: TwoFAType = request.body;
+        const result = await this.twoFatypeService.add(gameScore);
         
         if (result.success) {
           return response.status(HttpStatus.OK).send(await result);
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
-    }
-
-    @Get('/getbynickname')
-    async getByNickName(@Res() response: Response, @Req() request: Request) {
-      let userNickName: string = String(request.query.nickname);
-      const result = await this.gameTotalScoreService.getByNickName(userNickName);
-  
-      if (result.success) {
-        return response.status(HttpStatus.OK).send(await result);
-      }
-      return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
 }

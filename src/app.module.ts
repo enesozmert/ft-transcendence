@@ -1,3 +1,4 @@
+import { TowFatypeModule } from './modules/tow-fatype/tow-fatype.module';
 import { DirectMessageMatchModule } from './modules/direct-message-match/direct-message-match.module';
 import { ChatRoomUserPropertyModule } from './modules/chat-room-user-property/chat-room-user-property.module';
 import { ChatRoomUserModule } from './modules/chat-room-user/chat-room-user.module';
@@ -22,6 +23,7 @@ import * as path from 'path';
 import { ChatRoomModule } from './modules/chat-room/chat-room.module';
 import { ChatRoomAuthModule } from './modules/chat-room-auth/chat-room-auth.module';
 import { UserInfoModule } from './modules/user-info/user-info.module';
+import { GameTotalScoreModule } from './modules/game-total-score/game-total-score.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
 @Module({
@@ -43,7 +45,9 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     ChatRoomTypeModule,
     ChatRoomUserModule,
     ChatRoomUserPropertyModule,
-    DirectMessageMatchModule
+    DirectMessageMatchModule,
+    GameTotalScoreModule,
+    TowFatypeModule
   ],
   controllers: [AppController],
   providers: [AppService],

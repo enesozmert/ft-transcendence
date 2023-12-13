@@ -141,4 +141,10 @@ export class Messages {
   public static readonly GameTotalScoreNotFound: string;
   public static readonly GameTotalScoreUpdate: string;
   public static readonly GameTotalScoreDeleted: string;
+  static TwoFATypeGetAll: string;
+  static TwoFATypeGetById: string;
+  static TwoFATypeAdded: string;
+  static TwoFATypeNotFound: string;
+  static TwoFATypeUpdate: string;
+  static TwoFATypeDeleted: string;
 }
