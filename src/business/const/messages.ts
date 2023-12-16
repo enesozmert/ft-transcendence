@@ -147,4 +147,21 @@ export class Messages {
   static TwoFATypeNotFound: string;
   static TwoFATypeUpdate: string;
   static TwoFATypeDeleted: string;
+	static GetWithUserDtos: string;
+    static AchievementUpdate: string;
+    static AchievementNotFound: string;
+    static AchievementAdded: string;
+    static AchievementGetById: string;
+    static AchievementGetAll: string;
+    static AchievementDeleted: string;
+    static AchievementRuleDeleted: string;
+    static AchievementRuleNotFound: string;
+    static AchievementRuleAdded: string;
+    static AchievementRuleGetAll: string;
+    static UserAchievementUpdate: string;
+    static UserAchievementDeleted: string;
+    static UserAchievementNotFound: string;
+    static UserAchievementAdded: string;
+    static UserAchievementGetById: string;
+    static UserAchievementGetAll: string;
 }
