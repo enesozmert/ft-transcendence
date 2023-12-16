@@ -70,4 +70,15 @@ export class GameTotalScoriesController {
       }
       return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Get('/getwithuserdtos')
+    async getWithUserDtos(@Res() response: Response, @Req() request: Request) {
+        const result = await this.gameTotalScoreService.getWithUserDtos();
+        
+        if (result.success) {
+          return response.status(HttpStatus.OK).send(await result);
+        }
+        return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
+
 }

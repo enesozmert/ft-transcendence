@@ -35,7 +35,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
   async handleDisconnect(client: Socket) {
     const disconnectedUser = this.findDisconnectedUser(client);
@@ -202,6 +202,66 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('matchmakingtowuser')
+  async matchmakingTwoUser(
+    @MessageBody() data: any,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    let lastConnectedUser: [string, GameConnectedUserSocket] | undefined;
+    let lastRoom: [number, GameRoomSocket] | undefined;
+
+    let responseData = { message: 'Matchmaking Search', data: null };
+    socket.emit('matchmakingResponse', responseData);
+    this.connectedUserSocket.forEach((value, key) => {
+      lastConnectedUser = [key, value];
+    });
+    this.gameRoomsSocket.forEach((value, key) => {
+      lastRoom = [key, value];
+    });
+
+    await this.generateRoom(lastConnectedUser[1]);
+    lastConnectedUser[1].roomName = this.nextRoomId;
+    this.connectedUserSocket.set(lastConnectedUser[0], lastConnectedUser[1]);
+    const message = await this.joinRoom(lastConnectedUser[1]);
+    lastConnectedUser[1].roomName = this.nextRoomId;
+    this.connectedUserSocket.set(lastConnectedUser[0], lastConnectedUser[1]);
+    responseData = { message: message, data: null };
+    setTimeout(() => {
+      responseData = { message: 'Matchmaking Finish', data: null };
+      this.sendMessageRoom(
+        'matchmakingResponse',
+        lastRoom[1].sockets,
+        responseData,
+      );
+      this.sendMessageRoom('gameRoomId', lastRoom[1].sockets, {
+        message: String(lastRoom[0]),
+      });
+    }, 1000);
+    if (lastRoom) {
+      let gameBaseSocketWithoutSockets = {
+        userHostId: lastRoom[1].userHostId,
+        userGuestId: lastRoom[1].userGuestId,
+        userHostScore: lastRoom[1].userHostScore,
+        userGuestScore: lastRoom[1].userGuestScore,
+        resultNameId: lastRoom[1].resultNameId,
+        startTime: lastRoom[1].startTime,
+        timer: lastRoom[1].timer,
+      };
+      const serializedGameBaseSocket = JSON.stringify(
+        gameBaseSocketWithoutSockets,
+      );
+      const responseData = {
+        message: 'GameRoomSocketResponse Info',
+        data: serializedGameBaseSocket,
+      };
+      this.sendMessageRoom(
+        'gameRoomSocketResponse',
+        lastRoom[1].sockets,
+        responseData,
+      );
+    }
+  }
+
   //helper
 
   async sendMessageRoom(ev: string, sockets: Array<Socket>, responseData: any) {
@@ -226,7 +286,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       resultNameId: 0,
       sockets: sockets,
       startTime: new Date(),
-      timer: 10, //! GameDuration
+      timer: 20, //! GameDuration
     };
     sockets.push(gameConnectedUserSocket.socket);
     this.gameRoomsSocket.set(++this.nextRoomId, newGameRoom);
