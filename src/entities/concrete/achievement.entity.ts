@@ -5,8 +5,11 @@ export class Achievement {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   name: string;
+
+  @Column({ type: 'text', nullable: true })
+  imagePath: string;
 
   @Column({ type: 'date', nullable: true })
   updateTime: Date;

@@ -1,3 +1,4 @@
+import { UserService } from './../user/user.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from 'src/business/const/messages';
@@ -10,8 +11,8 @@ import { AchievementRuleDal } from 'src/dataAccess/concrete/achievementRuleDal';
 import { AchievementRule } from 'src/entities/concrete/achievementRule.entity';
 
 @Injectable()
-export class AchievementRuleRuleService {
-    constructor(@InjectRepository(AchievementRule) private achievementRuleDal: AchievementRuleDal) {
+export class AchievementRuleService {
+    constructor(@InjectRepository(AchievementRule) private achievementRuleDal: AchievementRuleDal, private readonly userService: UserService) {
 
     }
     public async getAll(): Promise<IDataResult<AchievementRule[]>> {
@@ -48,5 +49,23 @@ export class AchievementRuleRuleService {
     public async delete(id: number): Promise<IResult> {
         await this.achievementRuleDal.delete(id);
         return new SuccessResult(Messages.AchievementRuleDeleted);
+    }
+
+    public async checkAchievement(userId: number, name: string): Promise<IResult> {
+        let kldsjflf = await this.userService.getById(10);
+        let findByName = await this.achievementRuleDal.findOne({ where: { name: name } });
+        let codeString = findByName.condition.replace("#id", String(userId));
+        try {
+            let func = new Function(
+                'userService',
+                codeString
+            );
+            const result = await func().call({userService: this.userService});
+            if (result)
+                return new SuccessResult(Messages.CheckedAchievement);
+            return new ErrorResult(Messages.CheckedAchievement);
+        } catch (error) {
+            console.log("error ", error);
+        }
     }
 }

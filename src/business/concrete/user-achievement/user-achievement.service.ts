@@ -10,7 +10,7 @@ import { UserAchievementDal } from 'src/dataAccess/concrete/userAchievementDal';
 import { UserAchievement } from 'src/entities/concrete/userAchievement.entity';
 
 @Injectable()
-export class UserUserAchievementService {
+export class UserAchievementService {
     constructor(@InjectRepository(UserAchievement) private userAchievementDal: UserAchievementDal) {
 
     }

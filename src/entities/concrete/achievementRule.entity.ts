@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity('achievementRule')
+@Entity('achievementRules')
 export class AchievementRule {
   @PrimaryGeneratedColumn()
   id: number;
@@ -13,9 +13,6 @@ export class AchievementRule {
 
   @Column({ type: 'text', nullable: false })
   reward: string;
-
-  @Column({ type: 'text', nullable: false })
-  imagePath: string;
 
   @Column({ type: 'date', nullable: true })
   updateTime: Date;

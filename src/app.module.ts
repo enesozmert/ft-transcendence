@@ -24,6 +24,9 @@ import { ChatRoomModule } from './modules/chat-room/chat-room.module';
 import { ChatRoomAuthModule } from './modules/chat-room-auth/chat-room-auth.module';
 import { UserInfoModule } from './modules/user-info/user-info.module';
 import { GameTotalScoreModule } from './modules/game-total-score/game-total-score.module';
+import { AchievementModule } from './modules/achievement/achievement.module';
+import { AchievementRuleModule } from './modules/achievement-rule/achievement-rule.module';
+import { UserAchievementModule } from './modules/user-achievement/user-achievement.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
 @Module({
@@ -47,7 +50,10 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     ChatRoomUserPropertyModule,
     DirectMessageMatchModule,
     GameTotalScoreModule,
-    TowFatypeModule
+    TowFatypeModule,
+    AchievementModule,
+    AchievementRuleModule,
+    UserAchievementModule
   ],
   controllers: [AppController],
   providers: [AppService],
