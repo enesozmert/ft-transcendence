@@ -1,3 +1,4 @@
+import { UserAchievementByAchievementDto } from '../../../entities/dto/userAchievementByAchievementDto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Messages } from 'src/business/const/messages';
@@ -8,10 +9,12 @@ import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResu
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
 import { UserAchievementDal } from 'src/dataAccess/concrete/userAchievementDal';
 import { UserAchievement } from 'src/entities/concrete/userAchievement.entity';
+import { AchievementDal } from 'src/dataAccess/concrete/achievementDal';
+import { Achievement } from 'src/entities/concrete/achievement.entity';
 
 @Injectable()
 export class UserAchievementService {
-    constructor(@InjectRepository(UserAchievement) private userAchievementDal: UserAchievementDal) {
+    constructor(@InjectRepository(UserAchievement) private userAchievementDal: UserAchievementDal, private achievementDal: AchievementDal) {
 
     }
     public async getAll(): Promise<IDataResult<UserAchievement[]>> {
@@ -48,5 +51,31 @@ export class UserAchievementService {
     public async delete(id: number): Promise<IResult> {
         await this.userAchievementDal.delete(id);
         return new SuccessResult(Messages.UserAchievementDeleted);
+    }
+
+    public async getByUserIdAndAchievementId(userId: number, achievementId: number): Promise<IDataResult<UserAchievement>> {
+        return new SuccessDataResult<UserAchievement>(
+            await this.userAchievementDal.findOne({ where: { userId: userId, achievementId: achievementId } }),
+            Messages.UserAchievementUserIdAndAchievementId,
+        );
+    }
+
+
+    public async getAllUserAchievementByAchievementDtoWithUserId(userId): Promise<IDataResult<UserAchievementByAchievementDto[]>> {
+        const queryBuilder = this.userAchievementDal
+            .createQueryBuilder('userAchievement')
+            .innerJoin(Achievement, 'achievement', 'userAchievement.achievementId = achievement.id')
+            .select([
+                'userAchievement.id as "id"',
+                'userAchievement.userId as "userId"',
+                'userAchievement.achievementId as "achievementId"',
+                'achievement.name as "nickName"',
+                'achievement.imagePath as "updateTime"',
+            ])
+            .where('userAchievement.userId = :userId', { userId });
+
+        const result = await queryBuilder.getRawMany();
+
+        return new SuccessDataResult(result, Messages.GetWithUserDtos);
     }
 }

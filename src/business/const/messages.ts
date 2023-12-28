@@ -141,28 +141,35 @@ export class Messages {
   public static readonly GameTotalScoreNotFound: string;
   public static readonly GameTotalScoreUpdate: string;
   public static readonly GameTotalScoreDeleted: string;
-  public static TwoFATypeGetAll: string;
-  public static TwoFATypeGetById: string;
-  public static TwoFATypeAdded: string;
-  public static TwoFATypeNotFound: string;
-  public static TwoFATypeUpdate: string;
-  public static TwoFATypeDeleted: string;
-	public static GetWithUserDtos: string;
-  public static AchievementUpdate: string;
-  public static AchievementNotFound: string;
-  public static AchievementAdded: string;
-  public static AchievementGetById: string;
-  public static AchievementGetAll: string;
-  public static AchievementDeleted: string;
-  public static AchievementRuleDeleted: string;
-    public static AchievementRuleNotFound: string;
-    public static AchievementRuleAdded: string;
-    public static AchievementRuleGetAll: string;
-    public static UserAchievementUpdate: string;
-    public static UserAchievementDeleted: string;
-    public static UserAchievementNotFound: string;
-    public static UserAchievementAdded: string;
-    public static UserAchievementGetById: string;
-    public static UserAchievementGetAll: string;
-    public static CheckedAchievement: string;
+
+  public static readonly TwoFATypeGetAll: string;
+  public static readonly TwoFATypeGetById: string;
+  public static readonly TwoFATypeAdded: string;
+  public static readonly TwoFATypeNotFound: string;
+  public static readonly TwoFATypeUpdate: string;
+  public static readonly TwoFATypeDeleted: string;
+
+  public static readonly GetWithUserDtos: string;
+  public static readonly AchievementUpdate: string;
+  public static readonly AchievementNotFound: string;
+  public static readonly AchievementAdded: string;
+  public static readonly AchievementGetById: string;
+  public static readonly AchievementGetAll: string;
+  public static readonly AchievementDeleted: string;
+
+  public static readonly AchievementRuleDeleted: string;
+  public static readonly AchievementRuleNotFound: string;
+  public static readonly AchievementRuleAdded: string;
+  public static readonly AchievementRuleGetAll: string;
+
+  public static readonly UserAchievementUpdate: string;
+  public static readonly UserAchievementDeleted: string;
+  public static readonly UserAchievementNotFound: string;
+  public static readonly UserAchievementAdded: string;
+  public static readonly UserAchievementGetById: string;
+  public static readonly UserAchievementGetAll: string;
+
+  public static readonly CheckedAchievement: string;
+  public static readonly CheckedAchievementNotFound: string;
+  public static readonly UserAchievementUserIdAndAchievementId: string;
 }

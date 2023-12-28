@@ -1,3 +1,7 @@
+import { UserAchievement } from 'src/entities/concrete/userAchievement.entity';
+import { UserAchievementService } from './../user-achievement/user-achievement.service';
+import { GameTotalScoreService } from 'src/business/concrete/game-total-score/game-total-score.service';
+import { GameTotalScore } from 'src/entities/concrete/gameTotalScore.entity';
 import { UserService } from './../user/user.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,7 +16,11 @@ import { AchievementRule } from 'src/entities/concrete/achievementRule.entity';
 
 @Injectable()
 export class AchievementRuleService {
-    constructor(@InjectRepository(AchievementRule) private achievementRuleDal: AchievementRuleDal, private readonly userService: UserService) {
+    constructor(
+        @InjectRepository(AchievementRule) private achievementRuleDal: AchievementRuleDal,
+        private userService: UserService,
+        private gameTotalScoreService: GameTotalScoreService,
+        private userAchievementService: UserAchievementService) {
 
     }
     public async getAll(): Promise<IDataResult<AchievementRule[]>> {
@@ -52,20 +60,65 @@ export class AchievementRuleService {
     }
 
     public async checkAchievement(userId: number, name: string): Promise<IResult> {
-        let kldsjflf = await this.userService.getById(10);
         let findByName = await this.achievementRuleDal.findOne({ where: { name: name } });
-        let codeString = findByName.condition.replace("#id", String(userId));
-        try {
-            let func = new Function(
-                'userService',
-                codeString
-            );
-            const result = await func().call({userService: this.userService});
-            if (result)
-                return new SuccessResult(Messages.CheckedAchievement);
+        const functionCaller = new FunctionCaller();
+
+        if (findByName == null || findByName == undefined)
+            return new ErrorResult(Messages.CheckedAchievementNotFound);
+        functionCaller.addFunction("signRule", (userId: number) => this.signRule(userId));
+        functionCaller.addFunction("firstPongVinnerRule", (userId: number) => this.firstPongVinnerRule(userId));
+
+        let result: IResult = await functionCaller.callFunctionByName(findByName.condition, userId);
+        if (!result.success)
             return new ErrorResult(Messages.CheckedAchievement);
-        } catch (error) {
-            console.log("error ", error);
+        let userAchievementFound;
+        userAchievementFound = this.userAchievementService.getByUserIdAndAchievementId(userId, findByName.achievementId);
+        if (userAchievementFound != null && userAchievementFound !== undefined)
+            return new SuccessResult(Messages.CheckedAchievement);
+        let userAchievement: UserAchievement = {
+            id: 0,
+            userId: userId,
+            achievementId: findByName.achievementId,
+            updateTime: new Date(),
+            status: true
+        };
+        await this.userAchievementService.add(userAchievement);
+        return new SuccessResult(Messages.CheckedAchievement);
+    }
+
+    public async signRule(userId: number): Promise<IResult> {
+        let findUser = await this.userService.getById(userId);
+        if (findUser == null || findUser === undefined)
+            return new ErrorResult();
+        return new SuccessResult();
+    }
+
+    public async firstPongVinnerRule(userId: number): Promise<IResult> {
+        let findUser = await this.userService.getById(userId);
+        let findTotalScoreByUser = await this.gameTotalScoreService.getByNickName(findUser.data.nickName);
+        if (findTotalScoreByUser.data.totalWin >= 1)
+            return new ErrorResult();
+        return new SuccessResult();
+    }
+}
+
+export class FunctionCaller {
+    private functions: { [key: string]: (...args: any[]) => void } = {};
+
+    // Fonksiyon eklemek için kullanılan metot
+    addFunction(name: string, func: (...args: any[]) => void): void {
+        this.functions[name] = func;
+    }
+
+    // İsimle eşleşen fonksiyonu çağıran metot
+    async callFunctionByName(name: string, ...args: any[]): Promise<any> {
+        const func = this.functions[name];
+        let result: any;
+        if (func) {
+            result = func(...args);
+        } else {
+            console.log(`"${name}" isimli bir fonksiyon bulunamadı.`);
         }
+        return result;
     }
 }

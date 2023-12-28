@@ -5,6 +5,9 @@ export class AchievementRule {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'integer', nullable: false })
+  achievementId: number;
+
   @Column({ type: 'text', nullable: false })
   name: string;
 

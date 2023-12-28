@@ -60,4 +60,15 @@ export class UserAchievementsController {
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Get('/getalluserachievementbyachievementdtowithuserid')
+    async getAllUserAchievementByAchievementDtoWithUserId(@Res() response: Response, @Req() request: Request) {
+        let userId: number = Number(request.query.userId);
+        const result = await this.userAchievementService.getAllUserAchievementByAchievementDtoWithUserId(userId);
+
+        if (result.success) {
+            return response.status(HttpStatus.OK).send(await result);
+        }
+        return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
 }

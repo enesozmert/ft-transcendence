@@ -1,3 +1,5 @@
+import { AchievementDal } from 'src/dataAccess/concrete/achievementDal';
+import { AchievementModule } from './../achievement/achievement.module';
 import { UserModule } from './../user/user.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,6 +14,6 @@ import { UserAchievementDal } from 'src/dataAccess/concrete/userAchievementDal';
   ],
   exports: [TypeOrmModule, UserAchievementService],
   controllers: [UserAchievementsController],
-  providers: [UserAchievementService, UserAchievementDal],
+  providers: [UserAchievementService, UserAchievementDal, AchievementDal],
 })
 export class UserAchievementModule {}
