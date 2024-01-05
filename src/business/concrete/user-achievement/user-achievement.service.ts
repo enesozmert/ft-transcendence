@@ -1,3 +1,4 @@
+import { AchievementRule } from './../../../entities/concrete/achievementRule.entity';
 import { UserAchievementByAchievementDto } from '../../../entities/dto/userAchievementByAchievementDto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -65,12 +66,16 @@ export class UserAchievementService {
         const queryBuilder = this.userAchievementDal
             .createQueryBuilder('userAchievement')
             .innerJoin(Achievement, 'achievement', 'userAchievement.achievementId = achievement.id')
+            .innerJoin(AchievementRule, 'achievementRule', 'userAchievement.achievementId = achievementRule.id')
             .select([
                 'userAchievement.id as "id"',
                 'userAchievement.userId as "userId"',
                 'userAchievement.achievementId as "achievementId"',
-                'achievement.name as "nickName"',
-                'achievement.imagePath as "updateTime"',
+                'achievement.name as "name"',
+                'achievement.imagePath as "imagePath"',
+                'userAchievement.updateTime as "updateTime"',
+                'userAchievement.status as "status"',
+                'achievementRule.reward as "reward"'
             ])
             .where('userAchievement.userId = :userId', { userId });
 
