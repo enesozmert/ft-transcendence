@@ -69,8 +69,8 @@ export class UsersController {
     return response.status(HttpStatus.BAD_REQUEST).send(await result);
   }
 
-  // @common.Delete(':id')
-  // delete(@common.Param('id') id: string) {
-  //   return this.usersService.delete(+id);
-  // }
+  @Post('/delete')
+  delete(@Query('id') id: string) {
+    return this.usersService.delete(+id);
+  }
 }
