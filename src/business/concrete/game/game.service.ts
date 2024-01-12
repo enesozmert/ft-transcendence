@@ -202,63 +202,79 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('matchmakingtowuser')
+  @SubscribeMessage('matchmakingtwouser')
   async matchmakingTwoUser(
     @MessageBody() data: any,
     @ConnectedSocket() socket: Socket,
   ) {
-    let lastConnectedUser: [string, GameConnectedUserSocket] | undefined;
+    //abc.com?hostId=1&guestId=
+    let hostUserId = data.data.hostUserId;
+    let guestUserId = data.data.guestUserId;
+    let whoIs = data.data.whoIs;
+    let hostConnectedUser: [string, GameConnectedUserSocket] | undefined;
+    let guestConnectedUser: [string, GameConnectedUserSocket] | undefined;
     let lastRoom: [number, GameRoomSocket] | undefined;
 
-    let responseData = { message: 'Matchmaking Search', data: null };
-    socket.emit('matchmakingResponse', responseData);
+    let responseData = { message: 'Matchmaking Two', data: null };
+    socket.emit('matchmakingTwoResponse', responseData);
     this.connectedUserSocket.forEach((value, key) => {
-      lastConnectedUser = [key, value];
+      if (key === hostUserId) {
+        hostConnectedUser = [key, value];
+      }
+      if (key === guestUserId) {
+        guestConnectedUser = [key, value];
+      }
     });
     this.gameRoomsSocket.forEach((value, key) => {
       lastRoom = [key, value];
     });
 
-    await this.generateRoom(lastConnectedUser[1]);
-    lastConnectedUser[1].roomName = this.nextRoomId;
-    this.connectedUserSocket.set(lastConnectedUser[0], lastConnectedUser[1]);
-    const message = await this.joinRoom(lastConnectedUser[1]);
-    lastConnectedUser[1].roomName = this.nextRoomId;
-    this.connectedUserSocket.set(lastConnectedUser[0], lastConnectedUser[1]);
-    responseData = { message: message, data: null };
-    setTimeout(() => {
-      responseData = { message: 'Matchmaking Finish', data: null };
-      this.sendMessageRoom(
-        'matchmakingResponse',
-        lastRoom[1].sockets,
-        responseData,
-      );
-      this.sendMessageRoom('gameRoomId', lastRoom[1].sockets, {
-        message: String(lastRoom[0]),
-      });
-    }, 1000);
-    if (lastRoom) {
-      let gameBaseSocketWithoutSockets = {
-        userHostId: lastRoom[1].userHostId,
-        userGuestId: lastRoom[1].userGuestId,
-        userHostScore: lastRoom[1].userHostScore,
-        userGuestScore: lastRoom[1].userGuestScore,
-        resultNameId: lastRoom[1].resultNameId,
-        startTime: lastRoom[1].startTime,
-        timer: lastRoom[1].timer,
-      };
-      const serializedGameBaseSocket = JSON.stringify(
-        gameBaseSocketWithoutSockets,
-      );
-      const responseData = {
-        message: 'GameRoomSocketResponse Info',
-        data: serializedGameBaseSocket,
-      };
-      this.sendMessageRoom(
-        'gameRoomSocketResponse',
-        lastRoom[1].sockets,
-        responseData,
-      );
+    if (whoIs == 0) {
+      await this.generateRoom(hostConnectedUser[1]);
+      hostConnectedUser[1].roomName = this.nextRoomId;
+      this.connectedUserSocket.set(hostConnectedUser[0], hostConnectedUser[1]);
+    }
+
+    ///
+    if (whoIs == 1) {
+      const message = await this.joinRoom(guestConnectedUser[1]);
+      guestConnectedUser[1].roomName = this.nextRoomId;
+      this.connectedUserSocket.set(guestConnectedUser[0], guestConnectedUser[1]);
+      responseData = { message: message, data: null };
+      setTimeout(() => {
+        responseData = { message: 'Matchmaking Two Finish', data: null };
+        this.sendMessageRoom(
+          'matchmakingTwoResponse',
+          lastRoom[1].sockets,
+          responseData,
+        );
+        this.sendMessageRoom('gameRoomId', lastRoom[1].sockets, {
+          message: String(lastRoom[0]),
+        });
+      }, 1000);
+      if (lastRoom) {
+        let gameBaseSocketWithoutSockets = {
+          userHostId: lastRoom[1].userHostId,
+          userGuestId: lastRoom[1].userGuestId,
+          userHostScore: lastRoom[1].userHostScore,
+          userGuestScore: lastRoom[1].userGuestScore,
+          resultNameId: lastRoom[1].resultNameId,
+          startTime: lastRoom[1].startTime,
+          timer: lastRoom[1].timer,
+        };
+        const serializedGameBaseSocket = JSON.stringify(
+          gameBaseSocketWithoutSockets,
+        );
+        const responseData = {
+          message: 'GameRoomSocketResponse Info',
+          data: serializedGameBaseSocket,
+        };
+        this.sendMessageRoom(
+          'gameRoomSocketResponse',
+          lastRoom[1].sockets,
+          responseData,
+        );
+      }
     }
   }
 
