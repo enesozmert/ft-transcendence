@@ -16,6 +16,7 @@ import * as jwt from 'jsonwebtoken';
 import { GameConnectedUserSocket } from 'src/entities/concrete/gameConnectedUserSocket';
 import { User } from 'src/entities/concrete/user.entity';
 import { TimeInterval } from 'rxjs/internal/operators/timeInterval';
+import { log } from 'console';
 
 @WebSocketGateway({
   cors: {
@@ -42,9 +43,9 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (disconnectedUser) {
       const responseData = { message: 'true' };
-      this.userSocket.delete(disconnectedUser.nameIdentifier);
+      this.gameRoomsSocket.delete(disconnectedUser.roomName);
       this.connectedUserSocket.delete(disconnectedUser.nameIdentifier);
-      this.gameRoomsSocket.delete(this.nextRoomId);
+      this.userSocket.delete(disconnectedUser.nameIdentifier);
       disconnectedUser.socket.emit('gameDisconnected', responseData);
       console.log('disconnect user');
     }
@@ -164,13 +165,14 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       lastConnectedUser[1].roomName = this.nextRoomId;
       this.connectedUserSocket.set(lastConnectedUser[0], lastConnectedUser[1]);
       responseData = { message: message, data: null };
+
+      responseData = { message: 'Matchmaking Finish', data: null };
+      this.sendMessageRoom(
+        'matchmakingResponse',
+        lastRoom[1].sockets,
+        responseData,
+      );
       setTimeout(() => {
-        responseData = { message: 'Matchmaking Finish', data: null };
-        this.sendMessageRoom(
-          'matchmakingResponse',
-          lastRoom[1].sockets,
-          responseData,
-        );
         this.sendMessageRoom('gameRoomId', lastRoom[1].sockets, {
           message: String(lastRoom[0]),
         });
@@ -202,26 +204,28 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('matchmakingtwouser')
+  @SubscribeMessage('matchmakingTwoUser')
   async matchmakingTwoUser(
     @MessageBody() data: any,
     @ConnectedSocket() socket: Socket,
   ) {
     //abc.com?hostId=1&guestId=
-    let hostUserId = data.data.hostUserId;
-    let guestUserId = data.data.guestUserId;
+    let hostUserNickName = data.hostUserNickName;
+    let guestUserNickName = data.guestUserNickName;
     let whoIs = data.data.whoIs;
     let hostConnectedUser: [string, GameConnectedUserSocket] | undefined;
     let guestConnectedUser: [string, GameConnectedUserSocket] | undefined;
     let lastRoom: [number, GameRoomSocket] | undefined;
 
+    let hostUser = (await this.userService.getByNickName(hostUserNickName)).data;
+    let guestUser = (await this.userService.getByNickName(guestUserNickName)).data;
     let responseData = { message: 'Matchmaking Two', data: null };
     socket.emit('matchmakingTwoResponse', responseData);
     this.connectedUserSocket.forEach((value, key) => {
-      if (key === hostUserId) {
+      if (key === String(hostUser.id)) {
         hostConnectedUser = [key, value];
       }
-      if (key === guestUserId) {
+      if (key === String(guestUser.id)) {
         guestConnectedUser = [key, value];
       }
     });
@@ -229,14 +233,14 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       lastRoom = [key, value];
     });
 
-    if (whoIs == 0) {
+    if (hostConnectedUser) {
       await this.generateRoom(hostConnectedUser[1]);
       hostConnectedUser[1].roomName = this.nextRoomId;
       this.connectedUserSocket.set(hostConnectedUser[0], hostConnectedUser[1]);
     }
 
     ///
-    if (whoIs == 1) {
+    if (hostConnectedUser && guestConnectedUser) {
       const message = await this.joinRoom(guestConnectedUser[1]);
       guestConnectedUser[1].roomName = this.nextRoomId;
       this.connectedUserSocket.set(guestConnectedUser[0], guestConnectedUser[1]);

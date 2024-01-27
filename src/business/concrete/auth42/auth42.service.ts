@@ -27,7 +27,7 @@ export class Auth42Service {
     const userInfo = await this.base42Auth(code, "login");
     let userForLoginDto: UserForLoginDto = {
       email: userInfo.email,
-      password: String(userInfo.url + "sifredeneme432847247892473247329483274892")
+      password: String(userInfo.url + "sifredeneme")
     };
     const userToCheck = (
       await this.userService.getByMail(userForLoginDto.email)

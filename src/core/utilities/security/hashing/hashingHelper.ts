@@ -13,7 +13,7 @@ export class HashingHelper {
   async createPasswordHash(
     password: string,
   ): Promise<{ passwordHash: Buffer; passwordSalt: Buffer }> {
-    const passwordSalt = crypto.randomBytes(16);
+    const passwordSalt = crypto.randomBytes(password.length);
     const passwordHash = this.hashPassword(password, passwordSalt);
     return { passwordHash, passwordSalt };
   }
@@ -24,6 +24,11 @@ export class HashingHelper {
     passwordSalt: Buffer,
   ): Promise<boolean> {
     const hashedPassword = this.hashPassword(password, passwordSalt);
+
+    if (hashedPassword.length !== passwordHash.length) {
+      return false;
+    }
+  
     return crypto.timingSafeEqual(hashedPassword, passwordHash);
   }
 
