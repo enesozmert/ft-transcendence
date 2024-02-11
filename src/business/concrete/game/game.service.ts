@@ -161,24 +161,28 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
         'this.connectedUserSocket.length ' + this.connectedUserSocket.size,
       );
     } else if (this.connectedUserSocket.size % 2 == 0) {
-      const message = await this.joinRoom(lastConnectedUser[1]);
+      const result = await this.joinRoom(lastConnectedUser[1]);
       lastConnectedUser[1].roomName = this.nextRoomId;
       this.connectedUserSocket.set(lastConnectedUser[0], lastConnectedUser[1]);
-      responseData = { message: message, data: null };
+      if (result == false) {
+        responseData = { message: 'Matchmaking Error', data: null };
+      } else {
+        responseData = { message: 'Matchmaking Finish', data: null };
+      }
 
-      responseData = { message: 'Matchmaking Finish', data: null };
       this.sendMessageRoom(
         'matchmakingResponse',
         lastRoom[1].sockets,
         responseData,
       );
+
       setTimeout(() => {
         this.sendMessageRoom('gameRoomId', lastRoom[1].sockets, {
           message: String(lastRoom[0]),
         });
       }, 1000);
       if (lastRoom) {
-        let gameBaseSocketWithoutSockets = {
+        const gameBaseSocketWithoutSockets = {
           userHostId: lastRoom[1].userHostId,
           userGuestId: lastRoom[1].userGuestId,
           userHostScore: lastRoom[1].userHostScore,
@@ -210,17 +214,18 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
   ) {
     //abc.com?hostId=1&guestId=
-    let hostUserNickName = data.hostUserNickName;
-    let guestUserNickName = data.guestUserNickName;
-    let whoIs = data.data.whoIs;
+    const hostUserNickName = data.hostUserNickName;
+    const guestUserNickName = data.guestUserNickName;
     let hostConnectedUser: [string, GameConnectedUserSocket] | undefined;
     let guestConnectedUser: [string, GameConnectedUserSocket] | undefined;
     let lastRoom: [number, GameRoomSocket] | undefined;
 
-    let hostUser = (await this.userService.getByNickName(hostUserNickName)).data;
-    let guestUser = (await this.userService.getByNickName(guestUserNickName)).data;
-    let responseData = { message: 'Matchmaking Two', data: null };
-    socket.emit('matchmakingTwoResponse', responseData);
+    const hostUser = (await this.userService.getByNickName(hostUserNickName))
+      .data;
+    const guestUser = (await this.userService.getByNickName(guestUserNickName))
+      .data;
+    let responseData = {};
+    // socket.emit('matchmakingTwoResponse', responseData);
     this.connectedUserSocket.forEach((value, key) => {
       if (key === String(hostUser.id)) {
         hostConnectedUser = [key, value];
@@ -229,22 +234,49 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
         guestConnectedUser = [key, value];
       }
     });
-    this.gameRoomsSocket.forEach((value, key) => {
-      lastRoom = [key, value];
-    });
 
-    if (hostConnectedUser) {
+    if (hostConnectedUser && !guestConnectedUser) {
       await this.generateRoom(hostConnectedUser[1]);
       hostConnectedUser[1].roomName = this.nextRoomId;
       this.connectedUserSocket.set(hostConnectedUser[0], hostConnectedUser[1]);
+      this.gameRoomsSocket.forEach((value, key) => {
+        lastRoom = [key, value];
+      });
+
+      if (!hostConnectedUser || !guestConnectedUser) {
+        responseData = { message: 'Matchmaking Two Waiting', data: null };
+        this.sendMessageRoom(
+          'matchmakingTwoResponse',
+          lastRoom[1].sockets,
+          responseData,
+        );
+      }
+      return;
     }
 
     ///
     if (hostConnectedUser && guestConnectedUser) {
-      const message = await this.joinRoom(guestConnectedUser[1]);
+      const result = await this.joinRoom(guestConnectedUser[1]);
       guestConnectedUser[1].roomName = this.nextRoomId;
-      this.connectedUserSocket.set(guestConnectedUser[0], guestConnectedUser[1]);
-      responseData = { message: message, data: null };
+      this.connectedUserSocket.set(
+        guestConnectedUser[0],
+        guestConnectedUser[1],
+      );
+      this.gameRoomsSocket.forEach((value, key) => {
+        lastRoom = [key, value];
+      });
+      if (result == false) {
+        responseData = { message: 'Matchmaking Error', data: null };
+      } else {
+        responseData = { message: 'Matchmaking Two Join', data: null };
+      }
+
+      this.sendMessageRoom(
+        'matchmakingTwoResponse',
+        lastRoom[1].sockets,
+        responseData,
+      );
+
       setTimeout(() => {
         responseData = { message: 'Matchmaking Two Finish', data: null };
         this.sendMessageRoom(
@@ -257,7 +289,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
         });
       }, 1000);
       if (lastRoom) {
-        let gameBaseSocketWithoutSockets = {
+        const gameBaseSocketWithoutSockets = {
           userHostId: lastRoom[1].userHostId,
           userGuestId: lastRoom[1].userGuestId,
           userHostScore: lastRoom[1].userHostScore,
@@ -285,8 +317,8 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
   //helper
 
   async sendMessageRoom(ev: string, sockets: Array<Socket>, responseData: any) {
-    sockets[0].emit(ev, responseData);
-    sockets[1].emit(ev, responseData);
+    if (sockets[0]) sockets[0].emit(ev, responseData);
+    if (sockets[1]) sockets[1].emit(ev, responseData);
   }
 
   async sendBroadcast(ev: string, sockets: Array<Socket>, responseData: any) {
@@ -314,16 +346,16 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
 
   async joinRoom(
     gameConnectedUserSocket: GameConnectedUserSocket,
-  ): Promise<string> {
+  ): Promise<boolean> {
     for (const [roomId, room] of this.gameRoomsSocket.entries()) {
       if (!room.userGuestId) {
         room.userGuestId = Number(gameConnectedUserSocket.nameIdentifier);
         room.sockets.push(gameConnectedUserSocket.socket);
         this.gameRoomsSocket.set(roomId, room);
-        return 'Matchmaking Join';
+        return true;
       }
     }
-    return 'Matchmaking Fail';
+    return false;
   }
 
   sendPaddleData(data: any, socket: Socket): void {

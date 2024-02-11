@@ -172,4 +172,9 @@ export class Messages {
   public static readonly CheckedAchievement: string;
   public static readonly CheckedAchievementNotFound: string;
   public static readonly UserAchievementUserIdAndAchievementId: string;
+  public static readonly UserBlockGetAll: string;
+  public static readonly UserBlockGetById: string;
+  public static readonly UserBlockNotFound: any;
+  public static readonly UserBlockAdded: any;
+  public static readonly UserBlockByBlockerId: string;
 }

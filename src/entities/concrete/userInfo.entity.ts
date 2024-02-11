@@ -26,5 +26,4 @@ export class UserInfo {
 
   @Column({ type: 'timestamp', nullable: true })
   birthdayDate: Date;
-
 }

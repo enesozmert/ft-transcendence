@@ -27,11 +27,12 @@ import { GameTotalScoreModule } from './modules/game-total-score/game-total-scor
 import { AchievementModule } from './modules/achievement/achievement.module';
 import { AchievementRuleModule } from './modules/achievement-rule/achievement-rule.module';
 import { UserAchievementModule } from './modules/user-achievement/user-achievement.module';
+import { UserBlockModule } from './modules/user-block/user-block.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath:envFilePath, isGlobal: true }),
+    ConfigModule.forRoot({ envFilePath: envFilePath, isGlobal: true }),
     TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     UserModule,
     UserInfoModule,
@@ -53,7 +54,8 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     TowFatypeModule,
     AchievementModule,
     AchievementRuleModule,
-    UserAchievementModule
+    UserAchievementModule,
+    UserBlockModule,
   ],
   controllers: [AppController],
   providers: [AppService],
