@@ -177,4 +177,10 @@ export class Messages {
   public static readonly UserBlockNotFound: any;
   public static readonly UserBlockAdded: any;
   public static readonly UserBlockByBlockerId: string;
+  public static readonly DirectMessageGetAll: string;
+  public static readonly DirectMessageGetById: string;
+  public static readonly DirectMessageNotFound: string;
+  public static readonly DirectMessageAdded: string;
+  public static readonly DirectMessageUpdate: any;
+  public static readonly DirectMessageDeleted: string;
 }
