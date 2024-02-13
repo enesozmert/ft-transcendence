@@ -60,4 +60,15 @@ export class DirectMessagesController {
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Post('/addall')
+    async addAll(@Res() response: Response, @Req() request: Request) {
+        let directMessage: DirectMessage[] = request.body;
+        const result = await this.directMessageService.addAll(directMessage);
+        
+        if (result.success) {
+          return response.status(HttpStatus.OK).send(await result);
+        }
+        return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
 }

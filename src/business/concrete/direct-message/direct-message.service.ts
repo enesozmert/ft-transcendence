@@ -22,6 +22,7 @@ import { Server, Socket } from 'socket.io';
 import { DirectMessageUserSocket } from 'src/entities/concrete/directMessageUserSocket';
 import { DirectMessageSocket } from 'src/entities/concrete/directMessageSocket';
 import { DirectMessageListSocket } from 'src/entities/concrete/directMessageListSocket';
+import { GenerateGuid } from 'src/core/utilities/guid/generateGuid';
 @WebSocketGateway({
     cors: {
         origin: '*',
@@ -73,9 +74,24 @@ export class DirectMessageService implements OnGatewayConnection, OnGatewayDisco
         return new SuccessResult(Messages.DirectMessageDeleted);
     }
 
-    handleDisconnect(client: any) {
-        throw new Error('Method not implemented.');
+    public async addAll(directMessageMatch: DirectMessage[]): Promise<IResult> {
+        const addedDirectMessage = await this.directMessageDal.save(directMessageMatch);
+        return new SuccessResult(Messages.DirectMessageAdded);
     }
+
+    handleDisconnect(client: any) {
+        const disconnectedUserSocket = this.findDisconnectedUser(client);
+        const findDirectMessageSocket = this.findDirectMessageSocket(client);
+
+        if (disconnectedUserSocket) {
+            const responseData = { message: 'true' };
+            this.directMessageSockets.delete(disconnectedUserSocket.accessId);
+            this.connectedDirectMessageUserSockets.delete(findDirectMessageSocket);
+            //   disconnectedUser.socket.emit('gameDisconnected', responseData);
+            console.log('disconnect user');
+        }
+    }
+
     handleConnection(client: any, ...args: any[]) {
         client.id
         const token: string = client.handshake.auth.token;
@@ -92,11 +108,98 @@ export class DirectMessageService implements OnGatewayConnection, OnGatewayDisco
             (claim: { name: string }) => claim.name === 'nickName',
         );
 
-        // this.connectedDirectMessageUserSockets.set(client, {
-        //     nickName: nickName.value,
-        //     chatRoomAccessId: "",
-        //     socketId: client.id
-        // });
+        this.connectedDirectMessageUserSockets.set(client, {
+            nickName: nickName.value,
+            accessId: "",
+            socketId: client.id
+        });
         return true;
+    }
+
+    @SubscribeMessage('directMessageConnected')
+    async chatRoomConnected(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
+        let userSocketsIds: Map<Socket, DirectMessageUserSocket>;
+        let directMessageListSocket: DirectMessageListSocket;
+        let directMessageSocket: DirectMessageSocket;
+        let connectedUserSocket: DirectMessageUserSocket;
+        let accessId;
+
+        connectedUserSocket = this.connectedDirectMessageUserSockets.get(socket);
+        accessId = response.data;
+        connectedUserSocket.accessId = accessId;
+
+        if (!this.directMessageSockets.has(accessId)) {
+            userSocketsIds = new Map<Socket, DirectMessageUserSocket>();
+            userSocketsIds.set(socket, connectedUserSocket);
+            directMessageSocket = {
+                accessId: accessId,
+                userSocketsIds: userSocketsIds
+            };
+            directMessageSocket.accessId = accessId;
+            this.directMessageSockets.set(accessId, directMessageSocket);
+        } else {
+            let directMessageSocketOld: DirectMessageSocket = this.directMessageSockets.get(accessId);
+            if (!directMessageSocketOld.userSocketsIds.has(socket)) {
+                directMessageSocketOld.userSocketsIds.set(socket, connectedUserSocket);
+                this.directMessageSockets.set(accessId, directMessageSocketOld);
+            }
+        }
+
+        if (!this.directMessageListSockets.has(accessId)) {
+            directMessageListSocket = {
+                directMessageSocketsIds: new Map<string, DirectMessageSocket>(),
+            };
+        } else {
+            directMessageListSocket = this.directMessageListSockets.get(accessId);
+        }
+
+        directMessageListSocket.directMessageSocketsIds.set(accessId, directMessageSocket);
+        this.directMessageListSockets.set(accessId, directMessageListSocket);
+        console.log("this.chatRoomSockets1 ", this.connectedDirectMessageUserSockets.size);
+
+    }
+
+
+    @SubscribeMessage('getAccessId')
+    async getAccessId(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
+        const guid = GenerateGuid();
+        let responseData = { message: 'Message Text', data: guid };
+        this.sendBroadcast("messageResponse", this.directMessageSockets.get(response.data.accessId).userSocketsIds, responseData);
+    }
+
+    @SubscribeMessage('directMessageHandleMessage')
+    async directMessageHandleMessage(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
+        let responseData = { message: 'Message Text', data: response.data.messages };
+        this.sendBroadcast("messageResponse", this.directMessageSockets.get(response.data.accessId).userSocketsIds, responseData);
+    }
+    //utils
+
+    findDisconnectedUser(client: Socket): DirectMessageUserSocket | undefined {
+        for (const user of this.connectedDirectMessageUserSockets.values()) {
+            if (user.socketId === client.id) {
+                return this.connectedDirectMessageUserSockets.get(client);
+            }
+        }
+        return undefined;
+    }
+
+    findDirectMessageSocket(client: Socket): Socket | undefined {
+        for (const user of this.connectedDirectMessageUserSockets.values()) {
+            if (user.socketId === client.id) {
+                return client;
+            }
+        }
+        return undefined;
+    }
+
+
+    //mapBroadcast
+    async sendBroadcast(ev: string, sockets: Map<Socket, DirectMessageUserSocket>, responseData: any) {
+        console.log("responseData ", responseData);
+
+        for (const iterator of sockets) {
+            const element = iterator[0];
+            element.emit(ev, responseData);
+        }
     }
 }
