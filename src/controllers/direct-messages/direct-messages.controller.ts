@@ -71,4 +71,15 @@ export class DirectMessagesController {
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Get('/getallbyuserid')
+    async getAllByUserId(@Res() response: Response, @Req() request: Request) {
+        let userId: number = Number(request.query.userId);
+        const result = await this.directMessageService.getAllByUserId(userId);
+        
+        if (result.success) {
+          return response.status(HttpStatus.OK).send(await result);
+        }
+        return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
 }

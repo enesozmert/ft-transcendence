@@ -31,8 +31,8 @@ export class UserBlock {
   // @JoinColumn({ name: 'blocked_id' })
   // blocked: User;
 
-  @Column({ type: 'timestamp without time zone', nullable: true })
-  updatetime: Date;
+  @Column({ type: 'date', nullable: true })
+  updateTime: Date;
 
   @Column({ nullable: true })
   status: boolean;

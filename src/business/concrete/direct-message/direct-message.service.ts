@@ -79,6 +79,13 @@ export class DirectMessageService implements OnGatewayConnection, OnGatewayDisco
         return new SuccessResult(Messages.DirectMessageAdded);
     }
 
+    public async getAllByUserId(userId: number): Promise<IDataResult<DirectMessage[]>> {
+        return new SuccessDataResult<DirectMessage[]>(
+            await this.directMessageDal.find({ where: { senderId: userId } }),
+            Messages.DirectMessageGetAllByUserId,
+        );
+    }
+
     handleDisconnect(client: any) {
         const disconnectedUserSocket = this.findDisconnectedUser(client);
         const findDirectMessageSocket = this.findDirectMessageSocket(client);
@@ -155,6 +162,15 @@ export class DirectMessageService implements OnGatewayConnection, OnGatewayDisco
 
         directMessageListSocket.directMessageSocketsIds.set(accessId, directMessageSocket);
         this.directMessageListSockets.set(accessId, directMessageListSocket);
+        //response
+        let responseData = { success: true, message: 'Users Connection Complated' };
+        let userSocketIds = this.directMessageSockets.get(accessId).userSocketsIds;
+        if (userSocketIds.size == 2){
+            this.sendBroadcast("usersConnectionComplatedResponse", this.directMessageSockets.get(accessId).userSocketsIds, responseData);
+        }else{
+            responseData.success = false;
+            this.sendBroadcast("usersConnectionComplatedResponse", this.directMessageSockets.get(accessId).userSocketsIds, responseData);
+        }
         console.log("this.chatRoomSockets1 ", this.connectedDirectMessageUserSockets.size);
 
     }

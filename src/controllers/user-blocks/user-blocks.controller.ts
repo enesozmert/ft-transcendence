@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req, Res } from '@nestjs/common';
+import { log } from 'console';
 import { Request, Response } from 'express';
 import { UserBlockService } from 'src/business/concrete/user-block/user-block.service';
 import { UserBlock } from 'src/entities/concrete/userBlock.entity';
@@ -43,7 +44,7 @@ export class UserBlocksController {
 
   @Get('/delete')
   async delete(@Res() response: Response, @Req() request: Request) {
-    let id: number = Number(request.params);
+    let id: number = Number(request.query.id);
     const result = await this.userBlockService.delete(id);
 
     if (result.success) {
@@ -67,6 +68,16 @@ export class UserBlocksController {
   async getByBlockerId(@Res() response: Response, @Req() request: Request) {
     let blockerId: number = Number(request.query.blockerId);
     const result = await this.userBlockService.getByBlockerId(blockerId);
+
+    if (result.success) {
+      return response.status(HttpStatus.OK).send(await result);
+    }
+    return response.status(HttpStatus.BAD_REQUEST).send(await result);
+  }
+  @Post('/updatestatusbyblockeridblockedid')
+  async updateStatusByBlockerIdBlockedId(@Res() response: Response, @Req() request: Request) {
+    let updateUserBlock: UserBlock = request.body.updateUserBlock;
+    const result = await this.userBlockService.updateStatusByBlockerIdBlockedId(updateUserBlock);
 
     if (result.success) {
       return response.status(HttpStatus.OK).send(await result);

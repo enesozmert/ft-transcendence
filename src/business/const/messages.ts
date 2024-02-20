@@ -183,4 +183,5 @@ export class Messages {
   public static readonly DirectMessageAdded: string;
   public static readonly DirectMessageUpdate: any;
   public static readonly DirectMessageDeleted: string;
+  public static readonly DirectMessageGetAllByUserId: string;
 }
