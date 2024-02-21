@@ -74,10 +74,10 @@ export class UserBlocksController {
     }
     return response.status(HttpStatus.BAD_REQUEST).send(await result);
   }
-  @Post('/updatestatusbyblockeridblockedid')
+  @Post('/getbyblockeridblockedid')
   async updateStatusByBlockerIdBlockedId(@Res() response: Response, @Req() request: Request) {
-    let updateUserBlock: UserBlock = request.body.updateUserBlock;
-    const result = await this.userBlockService.updateStatusByBlockerIdBlockedId(updateUserBlock);
+    let userBlock: UserBlock = request.body;
+    const result = await this.userBlockService.getByBlockerIdBlockedId(userBlock);
 
     if (result.success) {
       return response.status(HttpStatus.OK).send(await result);

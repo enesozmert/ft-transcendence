@@ -42,7 +42,7 @@ export class UserBlockService {
     public async update(updatedUserBlock: UserBlock): Promise<IResult> {
         const type = await this.userBlockDal.findOne({ where: { id: updatedUserBlock.id } });
         if (!type) {
-            return new ErrorResult(Messages.UserBlockNotFound,);
+            return new ErrorResult(Messages.UserBlockNotFound);
         }
         const mergedType = this.userBlockDal.merge(type, updatedUserBlock);
         await this.userBlockDal.save(mergedType);
@@ -59,11 +59,12 @@ export class UserBlockService {
         return new SuccessDataResult(result, Messages.UserBlockByBlockerId);
     }
 
-    public async updateStatusByBlockerIdBlockedId(updateUserBlock: UserBlock): Promise<IResult> {
+    public async getByBlockerIdBlockedId(updateUserBlock: UserBlock): Promise<IDataResult<UserBlock>> {
         let userBlock = await this.userBlockDal.findOne({ where: { blockedId: updateUserBlock.blockedId, blockerId: updateUserBlock.blockerId } });
-        const mergedType = this.userBlockDal.merge(userBlock, updateUserBlock);
-        await this.userBlockDal.save(mergedType);
-        return new SuccessResult("");
+        if (!userBlock) {
+            return new ErrorDataResult(null,Messages.UserBlockNotFound);
+        }
+        return new SuccessDataResult(userBlock);
     }
 
     //bussines

@@ -314,6 +314,16 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('viewer')
+  async viewer(
+    @MessageBody() data: any,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    //data room-id // oyun data
+    //connectUser roomName güncelle room id
+    //
+  }
+
   //helper
 
   async sendMessageRoom(ev: string, sockets: Array<Socket>, responseData: any) {
@@ -338,7 +348,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       resultNameId: 0,
       sockets: sockets,
       startTime: new Date(),
-      timer: 20, //! GameDuration
+      timer: 100, //! GameDuration
     };
     sockets.push(gameConnectedUserSocket.socket);
     this.gameRoomsSocket.set(++this.nextRoomId, newGameRoom);
