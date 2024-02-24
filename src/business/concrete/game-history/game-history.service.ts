@@ -8,13 +8,13 @@ import { Messages } from 'src/business/const/messages';
 import { IResult } from 'src/core/utilities/result/abstract/iResult';
 import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
 import { SuccessResult } from 'src/core/utilities/result/concrete/result/successResult';
-import { GameHistoryDto } from 'src/entities/dto/GameHistoryDto';
+import { GameHistoryDto } from 'src/entities/dto/gameHistoryDto';
 import { User } from 'src/entities/concrete/user.entity';
 
 @Injectable()
 export class GameHistoryService {
     constructor(@InjectRepository(GameHistory) private gameHistoryDal: GameHistoryDal) {
-        
+
     }
 
     public async getAll(): Promise<IDataResult<GameHistory[]>> {
@@ -30,7 +30,7 @@ export class GameHistoryService {
 			Messages.GameHistoryGetById,
 		);
 	}
-    
+
     public async add(gameHistory: GameHistory): Promise<IDataResult<GameHistory>> {
 		const addedGameHistory = await this.gameHistoryDal.save(gameHistory);
 		return new SuccessDataResult<GameHistory>(addedGameHistory, Messages.GameHistoryAdded);
