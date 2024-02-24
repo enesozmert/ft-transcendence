@@ -29,6 +29,7 @@ import { AchievementRuleModule } from './modules/achievement-rule/achievement-ru
 import { UserAchievementModule } from './modules/user-achievement/user-achievement.module';
 import { UserBlockModule } from './modules/user-block/user-block.module';
 import { DirectMessageModule } from './modules/direct-message/direct-message.module';
+import { TwoFaModule } from './modules/two-fa/two-fa.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
 @Module({
@@ -58,6 +59,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     UserAchievementModule,
     UserBlockModule,
     DirectMessageModule,
+    TwoFaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

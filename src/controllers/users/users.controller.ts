@@ -1,4 +1,14 @@
-import { BadRequestException, Body, Controller, Get, HttpStatus, Post, Query, Req, Res } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { UserService } from 'src/business/concrete/user/user.service';
 import { Request, Response } from 'express';
 import { User } from 'src/entities/concrete/user.entity';
@@ -51,7 +61,7 @@ export class UsersController {
   async getByAttributes(@Res() response: Response, @Req() request: Request) {
     const user: UserForSearchDto = request.body;
     const result = await this.usersService.getByAttributes(user);
-    
+
     if (result.success) {
       return response.status(HttpStatus.OK).send(await result);
     }
@@ -60,9 +70,9 @@ export class UsersController {
 
   @Post('/update')
   async update(@Res() response: Response, @Req() request: Request) {
-    let user: User = request.body;
+    const user: User = request.body;
     const result = await this.usersService.update(user);
-    
+
     if (result.success) {
       return response.status(HttpStatus.OK).send(await result);
     }

@@ -23,6 +23,7 @@ import { DirectMessageUserSocket } from 'src/entities/concrete/directMessageUser
 import { DirectMessageSocket } from 'src/entities/concrete/directMessageSocket';
 import { DirectMessageListSocket } from 'src/entities/concrete/directMessageListSocket';
 import { GenerateGuid } from 'src/core/utilities/guid/generateGuid';
+import { log } from 'console';
 @WebSocketGateway({
     cors: {
         origin: '*',
@@ -30,7 +31,7 @@ import { GenerateGuid } from 'src/core/utilities/guid/generateGuid';
     namespace: 'socket/direct-message',
 })
 @Injectable()
-export class DirectMessageService implements OnGatewayConnection, OnGatewayDisconnect{
+export class DirectMessageService implements OnGatewayConnection, OnGatewayDisconnect {
     connectedDirectMessageUserSockets = new Map<Socket, DirectMessageUserSocket>();//socket=>user
     directMessageSockets = new Map<string, DirectMessageSocket>();//socket=>user
     directMessageListSockets = new Map<Socket, DirectMessageListSocket>();//socker=>chatRoomSocket
@@ -38,7 +39,7 @@ export class DirectMessageService implements OnGatewayConnection, OnGatewayDisco
     server: Server;
 
     constructor(@InjectRepository(DirectMessage) private directMessageDal: DirectMessageDal) {
-        
+
     }
 
     public async getAll(): Promise<IDataResult<DirectMessage[]>> {
@@ -140,6 +141,7 @@ export class DirectMessageService implements OnGatewayConnection, OnGatewayDisco
             userSocketsIds.set(socket, connectedUserSocket);
             directMessageSocket = {
                 accessId: accessId,
+                messages: [],
                 userSocketsIds: userSocketsIds
             };
             directMessageSocket.accessId = accessId;
@@ -165,12 +167,16 @@ export class DirectMessageService implements OnGatewayConnection, OnGatewayDisco
         //response
         let responseData = { success: true, message: 'Users Connection Complated' };
         let userSocketIds = this.directMessageSockets.get(accessId).userSocketsIds;
-        if (userSocketIds.size == 2){
+        if (userSocketIds.size == 2) {
             this.sendBroadcast("usersConnectionComplatedResponse", this.directMessageSockets.get(accessId).userSocketsIds, responseData);
-        }else{
+        } else {
             responseData.success = false;
             this.sendBroadcast("usersConnectionComplatedResponse", this.directMessageSockets.get(accessId).userSocketsIds, responseData);
         }
+        // let messagesResponseData = { message: 'Message Text', data: this.directMessageSockets.get(accessId).messages };
+        // console.log("this.directMessageSockets.get(accessId).messages ", this.directMessageSockets.get(accessId).messages);
+        
+        // this.sendBroadcast("messageResponse", this.directMessageSockets.get(accessId).userSocketsIds, messagesResponseData);
         console.log("this.chatRoomSockets1 ", this.connectedDirectMessageUserSockets.size);
 
     }
@@ -186,6 +192,9 @@ export class DirectMessageService implements OnGatewayConnection, OnGatewayDisco
     @SubscribeMessage('directMessageHandleMessage')
     async directMessageHandleMessage(@MessageBody() response: any, @ConnectedSocket() socket: Socket) {
         let responseData = { message: 'Message Text', data: response.data.messages };
+        // let directMessageSocket = this.directMessageSockets.get(response.data.accessId);
+
+        // directMessageSocket.messages = response.data.messages;
         this.sendBroadcast("messageResponse", this.directMessageSockets.get(response.data.accessId).userSocketsIds, responseData);
     }
     //utils
