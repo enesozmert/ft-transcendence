@@ -32,12 +32,6 @@ export class User {
   @Column({ length: 50, nullable: false })
   verificationCode: string;
 
-  @Column({nullable: true })
-  isTwoFA: boolean;
-
-  @Column({ nullable: true })
-  twoFAType: number;
-
   @Column({ type: 'timestamp without time zone', nullable: true })
   updatetime: Date;
 

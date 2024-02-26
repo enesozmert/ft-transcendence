@@ -45,8 +45,6 @@ export class AuthService {
 			status: false,
 			id: 0,
 			explanation: '',
-			isTwoFA: false,
-			twoFAType: 0,
 		};
 
 		const successResult = await this.userService.add(user);

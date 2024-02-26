@@ -9,16 +9,21 @@ import { SuccessDataResult } from 'src/core/utilities/result/concrete/dataResult
 @Injectable()
 export class TwoFaService {
   async genereate(user: any): Promise<IDataResult<any>> {
-        const secret = speakeasy.generateSecret({
-          name: `FtTranscendence(${user.email})`
-        });
-    
-        // QR kodu oluştur
-        const qrCode = await QRCode.toDataURL(secret.otpauth_url);
+      const secret = speakeasy.generateSecret({
+        name: `FtTranscendence(${user.email})`
+      });
 
-        return new SuccessDataResult<any>(
-            { secret, qrCode },
-            Messages.TwoFATypeGetAll,
-        );
-      }
+      const secretBase32 = secret.base32;
+      // QR kodu oluştur
+      const qrCode = await QRCode.toDataURL(secret.otpauth_url);
+      return new SuccessDataResult<any>(
+          {secretBase32, secret, qrCode },
+          Messages.TwoFATypeGetAll,
+      );
+  }
+
+  async verify(user: User, token: string): Promise<IDataResult<any>> {
+
+    return new SuccessDataResult<any>(null, "");
+  }
 }

@@ -184,4 +184,11 @@ export class Messages {
   public static readonly DirectMessageUpdate: any;
   public static readonly DirectMessageDeleted: string;
   public static readonly DirectMessageGetAllByUserId: string;
+
+  public static readonly UserTwoFAGetAll: string;
+  public static readonly UserTwoFAGetById: string;
+  public static readonly UserTwoFAUpdate: string;
+  public static readonly UserTwoFANotFound: string;
+  public static readonly UserTwoFADeleted: string;
+	public static readonly UserTwoFAAdded: string;
 }
