@@ -22,8 +22,12 @@ export class TwoFaService {
       );
   }
 
-  async verify(user: User, token: string): Promise<IDataResult<any>> {
-
-    return new SuccessDataResult<any>(null, "");
+  async verify(userSecret: any, token: string): Promise<IDataResult<any>> {
+    const isVerif = speakeasy.totp.verify({
+      secret: userSecret,
+      encoding: 'base32',
+      token: token,
+    });
+    return new SuccessDataResult<any>(isVerif, Messages.TwoFAVerify);
   }
 }

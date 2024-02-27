@@ -50,4 +50,11 @@ export class UserTwoFaService {
 		await this.userTwoFADal.delete(id);
 		return new SuccessResult(Messages.UserTwoFADeleted);
 	}
+
+	public async getByUserId(userId: number): Promise<IDataResult<UserTwoFA>> {
+		return new SuccessDataResult<UserTwoFA>(
+			await this.userTwoFADal.findOne({ where: { userId: userId } }),
+			Messages.UserTwoFAGetByUserId,
+		);
+	}
 }

@@ -60,4 +60,15 @@ export class UserTwoFasController {
         }
         return response.status(HttpStatus.BAD_REQUEST).send(await result);
     }
+
+    @Get('/getbyuserid')
+    async getByUserId(@Res() response: Response, @Req() request: Request) {
+        let userId: number = Number(request.query.userId);
+        const result = await this.userTwoFaService.getByUserId(userId);
+        
+        if (result.success) {
+          return response.status(HttpStatus.OK).send(await result);
+        }
+        return response.status(HttpStatus.BAD_REQUEST).send(await result);
+    }
 }

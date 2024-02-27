@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { TwoFAType } from 'src/entities/concrete/towFAType.entity';
 
-@Controller('two-fatypes')
+@Controller('api/two-fatypes')
 export class TwoFatypesController {
     constructor(private twoFatypeService: TwoFatypeService) { }
 

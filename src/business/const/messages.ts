@@ -191,4 +191,6 @@ export class Messages {
   public static readonly UserTwoFANotFound: string;
   public static readonly UserTwoFADeleted: string;
 	public static readonly UserTwoFAAdded: string;
+	public static readonly UserTwoFAGetByUserId: string;
+  public static readonly TwoFAVerify: string;
 }
