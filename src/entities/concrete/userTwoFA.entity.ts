@@ -14,6 +14,9 @@ export class UserTwoFA {
   @Column()
   isTwoFA: boolean;
 
+  @Column()
+  isVerify: boolean;
+
   @Column({ nullable: true })
   settings: string;
 
