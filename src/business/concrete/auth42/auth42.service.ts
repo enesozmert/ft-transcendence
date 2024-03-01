@@ -1,3 +1,4 @@
+import { UserInfoService } from 'src/business/concrete/user-info/user-info.service';
 import { Injectable, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IDataResult } from 'src/core/utilities/result/abstract/iDataResult';
@@ -12,11 +13,13 @@ import { RandomHelper } from 'src/core/utilities/random/randomHelper';
 import { UserForLoginDto } from 'src/entities/dto/userForLoginDto';
 import { HashingHelper } from 'src/core/utilities/security/hashing/hashingHelper';
 import { JwtHelper } from 'src/core/utilities/security/jwt/jwtHelper';
+import { UserInfo } from 'src/entities/concrete/userInfo.entity';
 
 @Injectable()
 export class Auth42Service {
   constructor(
     private userService: UserService,
+    private userInfoService: UserInfoService,
     private authService: AuthService,
     private readonly configService: ConfigService,
     private readonly hashingHelper: HashingHelper,
@@ -49,14 +52,14 @@ export class Auth42Service {
   }
 
   public async register(code: string): Promise<IDataResult<User>> {
-    const userInfo = await this.base42Auth(code, "register");
-    let password: string = String(userInfo.url + "sifredeneme");
+    const userInfo42 = await this.base42Auth(code, "register");
+    let password: string = String(userInfo42.url + "sifredeneme");
     const userForRegisterDto: UserForRegisterDto = {
-      email: userInfo.email,
+      email: userInfo42.email,
       password: password,
-      firstName: userInfo.first_name,
-      lastName: userInfo.last_name,
-      nickName: userInfo.login,
+      firstName: userInfo42.first_name,
+      lastName: userInfo42.last_name,
+      nickName: userInfo42.login,
     };
     const userExists = this.authService.userExists(userForRegisterDto);
     if (!(await userExists).success) {
@@ -66,6 +69,17 @@ export class Auth42Service {
       userForRegisterDto,
       password,
     );
+    let userInfo: UserInfo = {
+      id: 0,
+      userId: result.data.id,
+      loginDate: new Date(),
+      profileCheck: true,
+      profileImagePath: '',
+      profileText: '',
+      gender: false,
+      birthdayDate: new Date(),
+    };
+    await this.userInfoService.add(userInfo);
     return new SuccessDataResult<User>(result.data, Messages.UserRegistered);
   }
 
@@ -78,7 +92,7 @@ export class Auth42Service {
     form.append('client_id', UID as string);
     form.append('client_secret', SECRET as string);
     form.append('code', code);
-    form.append('redirect_uri', 'http://localhost:3000/api/auth42/'+ loginOrRegister);
+    form.append('redirect_uri', 'http://localhost:3000/api/auth42/' + loginOrRegister);
 
     const responseToken = await fetch(API_URL + '/oauth/token', {
       method: 'POST',

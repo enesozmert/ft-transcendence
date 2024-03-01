@@ -12,11 +12,14 @@ import { Messages } from 'src/business/const/messages';
 import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/errorDataResult';
 import { UserForRegisterDto } from 'src/entities/dto/userForRegisterDto';
 import { UserForLoginDto } from 'src/entities/dto/userForLoginDto';
+import { UserInfo } from 'src/entities/concrete/userInfo.entity';
+import { UserInfoService } from '../user-info/user-info.service';
 
 @Injectable()
 export class AuthGoogleService {
   constructor(
     private userService: UserService,
+    private userInfoService: UserInfoService,
     private authService: AuthService,
     private readonly configService: ConfigService,
     private readonly hashingHelper: HashingHelper,
@@ -49,17 +52,17 @@ export class AuthGoogleService {
   }
 
   public async register(code: string): Promise<IDataResult<User>> {
-    const userInfo = await this.baseGoogleAuth(code, 'register');
-    console.log('userInfo ' + JSON.stringify(userInfo));
-    const password = String(userInfo.id + 'sifredeneme');
+    const userInfoGoogle = await this.baseGoogleAuth(code, 'register');
+    console.log('userInfo ' + JSON.stringify(userInfoGoogle));
+    const password = String(userInfoGoogle.id + 'sifredeneme');
     const userForRegisterDto: UserForRegisterDto = {
-      email: userInfo.email,
+      email: userInfoGoogle.email,
       password: password,
-      firstName: String(userInfo.name).split(' ')[0],
-      lastName: userInfo.family_name,
+      firstName: String(userInfoGoogle.name).split(' ')[0],
+      lastName: userInfoGoogle.family_name,
       nickName:
-        String(userInfo.name).charAt(0) +
-        String(userInfo.family_name) +
+        String(userInfoGoogle.name).charAt(0) +
+        String(userInfoGoogle.family_name) +
         RandomHelper.makeText(10),
     };
     const userExists = this.authService.userExists(userForRegisterDto);
@@ -70,6 +73,17 @@ export class AuthGoogleService {
       userForRegisterDto,
       password,
     );
+    let userInfo: UserInfo = {
+      id: 0,
+      userId: result.data.id,
+      loginDate: new Date(),
+      profileCheck: true,
+      profileImagePath: '',
+      profileText: '',
+      gender: false,
+      birthdayDate: new Date(),
+    };
+    await this.userInfoService.add(userInfo);
     return new SuccessDataResult<User>(result.data, Messages.UserRegistered);
   }
 

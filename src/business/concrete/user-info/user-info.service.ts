@@ -12,6 +12,8 @@ import { UserInfoDal } from 'src/dataAccess/concrete/userInfoDal';
 import { UserInfo } from 'src/entities/concrete/userInfo.entity';
 import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/errorDataResult';
 import { FormFileImageSave } from 'src/core/utilities/file/concrete/formFileImageSave';
+import { BusinessRules } from 'src/core/utilities/business/businessRules';
+import { userInfo } from 'os';
 
 @Injectable()
 export class UserInfoService {
@@ -33,15 +35,19 @@ export class UserInfoService {
         );
     }
 
-    public async add(chatRoomType: UserInfo): Promise<IDataResult<UserInfo>> {
-        const addedUserInfo = await this.userInfoDal.save(chatRoomType);
+    public async add(userInfo: UserInfo): Promise<IDataResult<UserInfo>> {
+        let addedUserInfo;
+        const result = await this.getByUserId(userInfo.userId);
+        if (result.data != null)
+            return new ErrorDataResult<UserInfo>(null, Messages.UserBlockAdded);
+        addedUserInfo = await this.userInfoDal.save(userInfo)
         return new SuccessDataResult<UserInfo>(addedUserInfo, Messages.UserInfoAdded);
     }
 
     public async update(updatedUserInfo: UserInfo): Promise<IResult> {
         const type = await this.userInfoDal.findOne({ where: { id: updatedUserInfo.id } });
         if (!type) {
-            return new ErrorResult(Messages.UserInfoNotFound,);
+            return new ErrorResult(Messages.UserInfoNotFound);
         }
         const mergedType = this.userInfoDal.merge(type, updatedUserInfo);
         await this.userInfoDal.save(mergedType);
@@ -63,8 +69,18 @@ export class UserInfoService {
     }
     public async uploadProfileImage(nickName: string, file: Express.Multer.File): Promise<IResult> {
         let userInfo = await (await this.getByNickName(nickName)).data;
-        userInfo.profileImagePath = file.filename;
-        this.update(userInfo);
+        let newUserInfo: UserInfo = {
+            ...userInfo,
+            profileImagePath: file.filename
+        }
+        await this.update(newUserInfo);
         return await new SuccessResult(Messages.UserInfoUploadProfileImage);
+    }
+    private async getByUserId(userId: number): Promise<IDataResult<UserInfo>> {
+        const userInfo = await this.userInfoDal.findOne({ where: { userId: userId } });
+        return new SuccessDataResult<UserInfo>(
+            userInfo,
+            Messages.UserInfoGetByNickName,
+        );
     }
 }
