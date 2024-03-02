@@ -14,6 +14,9 @@ import { ErrorDataResult } from 'src/core/utilities/result/concrete/dataResult/e
 import { FormFileImageSave } from 'src/core/utilities/file/concrete/formFileImageSave';
 import { BusinessRules } from 'src/core/utilities/business/businessRules';
 import { userInfo } from 'os';
+import { User } from 'src/entities/concrete/user.entity';
+import { UserForSearchDto } from 'src/entities/dto/userForSearchDto';
+import { UserForUserInfoDto } from 'src/entities/dto/userForUserInfoDto';
 
 @Injectable()
 export class UserInfoService {
@@ -83,4 +86,31 @@ export class UserInfoService {
             Messages.UserInfoGetByNickName,
         );
     }
+
+    public async getByAttributes(attributes: Partial<UserForSearchDto>): Promise<IDataResult<UserForUserInfoDto[]>> {
+		const queryBuilder = this.userInfoDal
+        .createQueryBuilder('userInfo')
+		.innerJoin(User, 'user', 'user.id = userInfo.userId')
+            .select([
+                'user.id as "userId"',
+				'userInfo.id as "userInfoId"',
+				'user.firstName as "firstName"',
+				'user.lastName as "lastName"',
+				'user.email as "email"',
+				'user.nickName as "nickName"',
+				'userInfo.profileImagePath as "profileImagePath"',
+            ]);
+
+		Object.entries(attributes).forEach(([key, value]) => {
+			if (value) {
+				queryBuilder.andWhere(`user.${key} LIKE :${key}`, { [key]: `%${value}%` });
+			}
+		});
+
+		const userForUserInfos: any[] = await queryBuilder.getRawMany();
+		return await new SuccessDataResult<UserForUserInfoDto[]>(
+			userForUserInfos,
+			Messages.UserGetAttributes,
+		);
+	}
 }

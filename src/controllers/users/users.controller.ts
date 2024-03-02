@@ -57,16 +57,6 @@ export class UsersController {
     return response.status(HttpStatus.BAD_REQUEST).send(await result);
   }
 
-  @Post('/getbyattributes')
-  async getByAttributes(@Res() response: Response, @Req() request: Request) {
-    const user: UserForSearchDto = request.body;
-    const result = await this.usersService.getByAttributes(user);
-
-    if (result.success) {
-      return response.status(HttpStatus.OK).send(await result);
-    }
-    return response.status(HttpStatus.BAD_REQUEST).send(await result);
-  }
 
   @Post('/update')
   async update(@Res() response: Response, @Req() request: Request) {

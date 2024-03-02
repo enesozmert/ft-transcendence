@@ -12,6 +12,9 @@ import { OperationClaimDal } from 'src/dataAccess/concrete/operationClaimDal';
 import { ErrorResult } from 'src/core/utilities/result/concrete/result/errorResult';
 import { Messages } from 'src/business/const/messages';
 import { SelectQueryBuilder } from 'typeorm';
+import { UserForUserInfoDto } from 'src/entities/dto/userForUserInfoDto';
+import { UserInfo } from 'src/entities/concrete/userInfo.entity';
+import { UserInfoDal } from 'src/dataAccess/concrete/userInfoDal';
 
 @Injectable()
 export class UserService {
@@ -45,22 +48,6 @@ export class UserService {
 		return await new SuccessDataResult<User>(
 			await this.userDal.findOne({ where: { nickName: nickName } }),
 			Messages.UserGetByNickName,
-		);
-	}
-
-	public async getByAttributes(attributes: Partial<UserForSearchDto>): Promise<IDataResult<User[]>> {
-		const queryBuilder: SelectQueryBuilder<User> = this.userDal.createQueryBuilder('user');
-
-		Object.entries(attributes).forEach(([key, value]) => {
-			if (value) {
-				queryBuilder.andWhere(`user.${key} LIKE :${key}`, { [key]: `%${value}%` });
-			}
-		});
-
-		const users: User[] = await queryBuilder.getMany();
-		return await new SuccessDataResult<User[]>(
-			users,
-			Messages.UserGetAttributes,
 		);
 	}
 

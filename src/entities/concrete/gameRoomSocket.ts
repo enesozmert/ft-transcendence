@@ -8,5 +8,6 @@ export class GameRoomSocket {
   resultNameId: number;
   startTime: Date;
   timer: number;
+  speed: number;
   sockets: Array<Socket>;
 }

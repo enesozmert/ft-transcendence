@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('DirectMessages')
+@Entity('directMessages')
 export class DirectMessage {
   @PrimaryGeneratedColumn()
   id: number;

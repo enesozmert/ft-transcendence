@@ -6,6 +6,7 @@ import { extname } from 'path';
 import { UserInfoService } from 'src/business/concrete/user-info/user-info.service';
 import { GenerateGuid } from 'src/core/utilities/guid/generateGuid';
 import { UserInfo } from 'src/entities/concrete/userInfo.entity';
+import { UserForSearchDto } from 'src/entities/dto/userForSearchDto';
 
 @Controller('api/user-infos')
 export class UserInfosController {
@@ -99,4 +100,16 @@ export class UserInfosController {
     }
     return response.status(HttpStatus.BAD_REQUEST).send(await result);
   }
+  
+  @Post('/getbyattributes')
+  async getByAttributes(@Res() response: Response, @Req() request: Request) {
+    const user: UserForSearchDto = request.body;
+    const result = await this.userInfoService.getByAttributes(user);
+
+    if (result.success) {
+      return response.status(HttpStatus.OK).send(await result);
+    }
+    return response.status(HttpStatus.BAD_REQUEST).send(await result);
+  }
+
 }
