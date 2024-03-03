@@ -71,10 +71,9 @@ export class AchievementRuleService {
         let result: IResult = await functionCaller.callFunctionByName(findByName.condition, userId);
         if (!result.success)
             return new ErrorResult(Messages.CheckedAchievement);
-        let userAchievementFound;
-        userAchievementFound = await this.userAchievementService.getByUserIdAndAchievementId(userId, findByName.achievementId);
-        if (userAchievementFound.data != null && userAchievementFound.data !== undefined)
-            return new SuccessResult(Messages.CheckedAchievement);
+        let userAchievementFound = await this.userAchievementService.getByUserIdAndAchievementId(userId, findByName.achievementId);
+        if (userAchievementFound && userAchievementFound.data)
+            return new ErrorResult(Messages.CheckedAchievement);
         let userAchievement: UserAchievement = {
             id: 0,
             userId: userId,
