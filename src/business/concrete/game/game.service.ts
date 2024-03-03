@@ -67,7 +67,14 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     nameIdentifier = decodedToken.claims.find(
       (claim: { name: string }) => claim.name === 'nameIdentifier',
     );
-
+    let lastRoom: [number, GameRoomSocket] | undefined;
+    this.gameRoomsSocket.forEach((value, key) => {
+      lastRoom = [key, value];
+      if ((lastRoom[1].userHostId == Number(nameIdentifier.value) ||
+        lastRoom[1].userGuestId == Number(nameIdentifier.value)) && lastRoom[1].sockets.length == 1) {
+          return false;
+      }
+    });
     this.userSocket.set(nameIdentifier.value, { socket: client });
     this.connectedUserSocket.set(nameIdentifier.value, {
       nameIdentifier: nameIdentifier.value,
@@ -106,13 +113,14 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       responseData,
     );
 
-    if (!currentViewRoom)
-      return;
-    this.sendBroadcast(
-      'ballLocationResponse',
-      currentViewRoom?.sockets,
-      responseData,
-    );
+    if (currentViewRoom && currentViewRoom.sockets.length > 0) {
+      const responseData = { message: 'Ball Location', data: data };
+      this.sendBroadcast(
+        'ballLocationResponse',
+        currentViewRoom.sockets,
+        responseData,
+      );
+    }
 
     const nowDate = new Date();
     const date =
@@ -325,7 +333,9 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     this.gameRoomViewerSocket.forEach((value, key) => {
       lastRoomViewer = [key, value];
     });
-
+    if (!this.gamebaseSocket.get(data.roomId)) {
+      this.gameRoomViewerSocket.delete(data.roomId);
+    }
     if (lastRoomViewer) {
       lastRoomViewer[1].sockets.push(socket);
       this.gameRoomViewerSocket.set(data.roomId, lastRoomViewer[1]);
@@ -392,7 +402,6 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
     currentRoom = this.findCurrentRoom(socket);
     currentViewRoom = this.gameRoomViewerSocket.get(data.roomId);
     if (currentRoom === undefined) return;
-    if (currentViewRoom === undefined) return;
     if (data.whoIs == 0) {
       this.paddleArray[0] = data;
       //   console.log('paddledata socre0' + data.score);
