@@ -30,7 +30,7 @@ export class Auth42Service {
     const userInfo = await this.base42Auth(code, "login");
     let userForLoginDto: UserForLoginDto = {
       email: userInfo.email,
-      password: String(userInfo.url + "sifredeneme")
+      password: String(userInfo.email + "sifredeneme1453*0571*0630")
     };
     const userToCheck = (
       await this.userService.getByMail(userForLoginDto.email)
@@ -53,7 +53,7 @@ export class Auth42Service {
 
   public async register(code: string): Promise<IDataResult<User>> {
     const userInfo42 = await this.base42Auth(code, "register");
-    let password: string = String(userInfo42.url + "sifredeneme");
+    let password: string = String(userInfo42.email + "sifredeneme1453*0571*0630");
     const userForRegisterDto: UserForRegisterDto = {
       email: userInfo42.email,
       password: password,

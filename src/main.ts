@@ -11,10 +11,10 @@ async function bootstrap() {
     cors: true,
   });
   app.enableCors({
-    origin: true,
+    origin: ['http://localhost:8080', 'http://localhost:4200'],
     methods: 'GET,POST',
     credentials: true,
-});
+  });
   const config: ConfigService = app.get(ConfigService);
   const port: number = config.get<number>('PORT');
 

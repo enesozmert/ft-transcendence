@@ -30,7 +30,7 @@ export class AuthGoogleService {
     const userInfo = await this.baseGoogleAuth(code, 'login');
     const userForLoginDto: UserForLoginDto = {
       email: userInfo.email,
-      password: String(userInfo.id + 'sifredeneme'),
+      password: String(userInfo.id + 'sifredeneme1453*0571*0630'),
     };
     const userToCheck = (
       await this.userService.getByMail(userForLoginDto.email)
@@ -54,7 +54,7 @@ export class AuthGoogleService {
   public async register(code: string): Promise<IDataResult<User>> {
     const userInfoGoogle = await this.baseGoogleAuth(code, 'register');
     console.log('userInfo ' + JSON.stringify(userInfoGoogle));
-    const password = String(userInfoGoogle.id + 'sifredeneme');
+    const password = String(userInfoGoogle.id + 'sifredeneme1453*0571*0630');
     const userForRegisterDto: UserForRegisterDto = {
       email: userInfoGoogle.email,
       password: password,
