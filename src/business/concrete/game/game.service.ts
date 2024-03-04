@@ -72,7 +72,7 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       lastRoom = [key, value];
       if ((lastRoom[1].userHostId == Number(nameIdentifier.value) ||
         lastRoom[1].userGuestId == Number(nameIdentifier.value)) && lastRoom[1].sockets.length == 1) {
-          return false;
+        return false;
       }
     });
     this.userSocket.set(nameIdentifier.value, { socket: client });
@@ -346,6 +346,38 @@ export class GameService implements OnGatewayConnection, OnGatewayDisconnect {
       newGameRoomViewer.sockets.push(socket);
       this.gameRoomViewerSocket.set(data.roomId, newGameRoomViewer);
     }
+  }
+
+
+  @SubscribeMessage('isUserInRoom')
+  async isUserInRoom(
+    @MessageBody() data: any,
+    @ConnectedSocket() socket: Socket,
+  ) {
+    // Kullanıcının bağlı olduğu odayı bul
+    let lastRoom: [number, GameRoomSocket] | undefined;
+
+    if (this.gameRoomsSocket.size <= 0) {
+      socket.emit('isUserInRoomResponse', { message: 'UserNotInRoom' });
+      return;
+    }
+    this.gameRoomsSocket.forEach((value, key) => {
+      lastRoom = [key, value];
+      if (
+        lastRoom[1].userGuestId == Number(data.userId) ||
+        lastRoom[1].userHostId == Number(data.userId)
+      ) {
+        const responseData = {
+          message: 'UserInRoom',
+          roomId: lastRoom[1].resultNameId,
+          roomInfo: lastRoom[1].resultNameId,
+        };
+        socket.emit('isUserInRoomResponse', responseData);
+        return;
+      }
+    });
+    socket.emit('isUserInRoomResponse', { message: 'UserNotInRoom' });
+    return;
   }
 
   //helper

@@ -193,4 +193,10 @@ export class Messages {
 	public static readonly UserTwoFAAdded: string;
 	public static readonly UserTwoFAGetByUserId: string;
   public static readonly TwoFAVerify: string;
+  public static readonly UserFriendGetAll: string;
+  public static readonly UserFriendGetById: string;
+  public static readonly UserFriendNotFound: string;
+  public static readonly UserFriendUpdate: string;
+  public static readonly UserFriendDeleted: string;
+  public static readonly UserFriendAdded: string;
 }

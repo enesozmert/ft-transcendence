@@ -30,8 +30,8 @@ import { UserAchievementModule } from './modules/user-achievement/user-achieveme
 import { UserBlockModule } from './modules/user-block/user-block.module';
 import { DirectMessageModule } from './modules/direct-message/direct-message.module';
 import { TwoFaModule } from './modules/two-fa/two-fa.module';
-import { UserTwoFA } from './entities/concrete/userTwoFa.entity';
 import { UserTwoFaModule } from './modules/user-two-fa/user-two-fa.module';
+import { UserFriendModule } from './modules/user-friend/user-friend.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
 @Module({
@@ -63,6 +63,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/core/envs`);
     DirectMessageModule,
     TwoFaModule,
     UserTwoFaModule,
+    UserFriendModule,
   ],
   controllers: [AppController],
   providers: [AppService],

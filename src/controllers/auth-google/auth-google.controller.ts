@@ -18,13 +18,13 @@ export class AuthGoogleController {
         const userToLogin = await this.authGoogleService.login(code);
         if (!userToLogin.success) {
           return response.redirect(
-            'http://localhost:4200/redirection-auth-google/' + "none" + '/' + (await userToLogin).success + '/' + (await userToLogin).message,
+            this.configService.get<string>('UI_BASE_URL') + '/redirection-auth-google/' + "none" + '/' + (await userToLogin).success + '/' + (await userToLogin).message,
           );
         }
     
         const result = await this.authService.createAccessToken(userToLogin.data);
         return response.redirect(
-          'http://localhost:4200/redirection-auth-google/' + (await result).data.token + '/' + (await result).success + '/' + (await result).message,
+          this.configService.get<string>('UI_BASE_URL') + '/redirection-auth-google/' + (await result).data.token + '/' + (await result).success + '/' + (await result).message,
         );
       }
     
@@ -34,7 +34,7 @@ export class AuthGoogleController {
         const registerResult = this.authGoogleService.register(code);
         if (!(await registerResult).success){
           return response.redirect(
-            'http://localhost:4200/redirection-auth-google/' + "none" + '/' + (await registerResult).success + '/' + (await registerResult).message,
+            this.configService.get<string>('UI_BASE_URL') + '/redirection-auth-google/' + "none" + '/' + (await registerResult).success + '/' + (await registerResult).message,
           );
         }
     
@@ -42,7 +42,7 @@ export class AuthGoogleController {
           (await registerResult).data,
         );
         return response.redirect(
-          'http://localhost:4200/redirection-auth-google/' + (await result).data.token + '/' + (await result).success + '/' + (await result).message,
+          this.configService.get<string>('UI_BASE_URL') + '/redirection-auth-google/' + (await result).data.token + '/' + (await result).success + '/' + (await result).message,
         );
       }
 }
